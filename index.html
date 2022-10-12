@@ -10,6 +10,7 @@
             background-color: #fff;
         }
     </style>
+    <script src="index.js"></script>
 </head>
 <body>
     <script type="module">
@@ -39,5 +40,13 @@
     <br>
     <hr>
     <h1>Hello World</h1>
+    <p id="timer">Time: -</p>
+    <button id="start-button">Start</button>
+    <button id="stop-button">Stop</button>
+    <div>
+        <span>Score: </span>
+        <span id="score">0</span>
+    </div>
+    <button id="increment-score" onclick="incrementScore()">Add</button>
 </body>
 </html>
