@@ -1,0 +1,42 @@
+.container  {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+  }
+#timer{
+    margin-top: -50px;
+}
+
+#button {
+    font-family: sans-serif;
+    background: #F83;
+    padding: 30px;
+    border-radius: 100px;
+    font-size: 30px;
+    display: inline-block;
+    color: #FFF;
+    margin-top: 400px;
+    margin-left: 50%;
+    margin-right: 50%;
+    letter-spacing: 2px;
+    border: 1px solid rgba(0,0,0,.1);
+    outline: none;
+    background: linear-gradient(to bottom, #F64, #F66);
+    box-shadow: 0 10px 30px rgba(255,100,100, .5), 0 20px 100px 10px rgba(255,100,100, .5);
+    transition: all .25s;
+    cursor: pointer; 
+}
+    
+#button:active {
+    box-shadow: 0 0px 20px rgba(255,100,100, .5);
+    transform: scale(0.9);
+}
+
+#score{
+    margin-top: 60px;
+    /* margin-left: 50%; */
+    /* margin-right: 50%; */
+}
+
+  
