@@ -8,67 +8,57 @@
 </head>
 <body>
     <script type="module">
-        (async () => {
-            const o3h = await import('/api/o3h.js');
-            window.o3h = o3h;
-            // Load the module here
-            o3h.Instance.ready(start);
-        })();
-        function start() {
-            const cameraComponentConfig = new o3h.CameraComponentConfig();
-            console.log("Creates a new camera component config");
+        import * as o3h from "/api/o3h.js";
+        const runtime = o3h.Instance;
+
+        // Global variables
+        let cameraComponent;
+
+        // Module functions
+        async function setupModule() {
+            runtime.adjustViewport("device-width", "device-height");
             
-            // disable the recording timer
-            cameraComponentConfig.showRecordingUI = false;
+            // Camera component configuration
+            const cameraConfig = new o3h.CameraComponentConfig();
+            cameraConfig.resolutionScale = o3h.CameraResolutionScale.Full; // Full resolution
+            cameraConfig.cameraType = o3h.CameraType.FrontFacing;
             
-            const runtime = o3h.Instance;
-            console.log("Gets the runtime instance");
-            const componentConfigurations = {"main" : cameraComponentConfig};
-            var cameraComponent;
-            var layout;
-            (async () => {
-                // await calls go in here 
-                try {
-                    console.log("Starts the runtime layout");
-                    layout = await runtime.createLayout("Full Screen", componentConfigurations);
-                    cameraComponent = layout.getComponent("main");
-                    const assetManager = runtime.getAssetManager();
-                } catch (error) {
-                    console.error(error);
-                }
-            })();
+            // Creating a full-screen camera layout
+            const componentConfig = {"main": cameraConfig};
+            const layout = await runtime.createLayout("Full Screen", componentConfig);
             
-            // the camera feed will now appear in the main layout element
-            (async () => {
-                // await calls go in here 
-                try {
-                    console.log("Shows the layout");
-                    await layout.show();
-                } catch (error) {
-                    console.error(error);
-                }
-            })();
+            // Make the layout active
+            await layout.show();
+
+            // Get the camera component and set as a global variable
+            cameraComponent = layout.getComponent("main");
+        }
+
+        async function startModule() {
+            // Start recording the camera
+            cameraComponent.startRecording();
             
-            // now that the layout is visible we can show the module
-            runtime.ready(async () => {
-                if(typeof cameraComponent !== 'undefined'){
-                // this statement will not execute
-                console.log("Camera component is defined");
-                }
-                console.log("Camera component is defined");
-                // start recording what appear in the camera feed
-                cameraComponent.startRecording();
+            // Wait for 10 seconds
+            await wait(10000);
             
-                // wait for some amount of time
+            // Stop the camera recording and get the video asset
+            const videoAsset = await cameraComponent.stopRecording();
             
-                // stop the recording and get a reference to the mp4 file that was created
-                const videoAsset = await cameraComponent.stopRecording();
+            // Add the video asset to the module output
+            const assetManager = runtime.getAssetManager();
+            assetManager.addToOutput("recording", videoAsset);
             
-                // save the camera recording to the list of assets created by this module
-                //assetManager.addToOutput("cameraRecording", videoAsset);
-            });
-        } 
-        
+            // Complete the module
+            runtime.completeModule({"score": 0});
+        }
+
+        // Setup module then display the module to the player
+        setupModule().then(() => runtime.ready(startModule));
+
+        // Utility functions
+        function wait(milliseconds) {
+            return new Promise(resolve => setTimeout(resolve, milliseconds));
+        }
     </script>
     <div class="main"></div>
 </body>
