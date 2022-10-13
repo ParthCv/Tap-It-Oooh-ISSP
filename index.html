@@ -5,43 +5,67 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Document</title>
-    <style>
-        body {
-            background-color: #fff;
-        }
-    </style>
     <link rel="stylesheet" href="/button.css">
 </head>
 <body>
     <script type="module">
-        // Import the o3h API using absolute path
         import * as o3h from "/api/o3h.js";
-        // Instance: Runtime;
-
-        // Export the o3h API globally
-        window.o3h = o3h;
-    
-        // Gets the instance of the Oooh runtime, the entry point for all interactions with our API
         const runtime = o3h.Instance;
-        // Tell Oooh to hide its loading screen and show your module
-        runtime.ready(() => {
-   
-            runtime.adjustViewport(undefined, undefined, "1");
 
-            // At this point, you can see your module!
-            console.log("Module is ready!");
+        // Global variables
+        let cameraComponent;
+
+        // Module functions
+        async function setupModule() {
+            runtime.adjustViewport("device-width", "device-height");
             
-            function myFunction() {
-                document.getElementById("demo").style.color = "red";
+            // Camera component configuration
+            const cameraConfig = new o3h.CameraComponentConfig();
+            cameraConfig.resolutionScale = o3h.CameraResolutionScale.Full; // Full resolution
+            cameraConfig.cameraType = o3h.CameraType.FrontFacing;
+            
+            // Creating a full-screen camera layout
+            const componentConfig = {"main": cameraConfig};
+            const layout = await runtime.createLayout("Full Screen", componentConfig);
+            
+            // Make the layout active
+            await layout.show();
 
-            }
-        });
-        
+            // Get the camera component and set as a global variable
+            cameraComponent = layout.getComponent("main");
+        }
+
+        async function startModule() {
+            // Start recording the camera
+            cameraComponent.startRecording();
+            
+            // Wait for 10 seconds
+            await wait(60000);
+            
+            // Stop the camera recording and get the video asset
+            const videoAsset = await cameraComponent.stopRecording();
+            
+            // Add the video asset to the module output
+            const assetManager = runtime.getAssetManager();
+            assetManager.addToOutput("recording", videoAsset);
+            
+            // Complete the module
+            runtime.completeModule({"score": 0});
+        }
+
+        // Setup module then display the module to the player
+        setupModule().then(() => runtime.ready(startModule));
+
+        // Utility functions
+        function wait(milliseconds) {
+            return new Promise(resolve => setTimeout(resolve, milliseconds));
+        }        
     </script>
     <br>
     <br>
     <br>
     <br>
+    <div class="main"></div>
     <div class="container">
         <span id = "timer" > Timer: 60</span>
         <button id="button">Click</button>

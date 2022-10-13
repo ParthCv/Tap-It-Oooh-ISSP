@@ -1,4 +1,6 @@
 .container  {
+    color: #fff;
+    font-size: 25px;
     display: flex;
     align-items: center;
     justify-content: center;
