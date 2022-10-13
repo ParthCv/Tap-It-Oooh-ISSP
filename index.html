@@ -8,36 +8,67 @@
 </head>
 <body>
     <script type="module">
-        import * as o3h from "/api/o3h.js";
-  
-        const cameraComponentConfig = new o3h.CameraComponentConfig();
+        (async () => {
+            const o3h = await import('/api/o3h.js');
+            window.o3h = o3h;
+            // Load the module here
+            o3h.Instance.ready(start);
+        })();
+        function start() {
+            const cameraComponentConfig = new o3h.CameraComponentConfig();
+            console.log("Creates a new camera component config");
+            
+            // disable the recording timer
+            cameraComponentConfig.showRecordingUI = false;
+            
+            const runtime = o3h.Instance;
+            console.log("Gets the runtime instance");
+            const componentConfigurations = {"main" : cameraComponentConfig};
+            var cameraComponent;
+            var layout;
+            (async () => {
+                // await calls go in here 
+                try {
+                    console.log("Starts the runtime layout");
+                    layout = await runtime.createLayout("Full Screen", componentConfigurations);
+                    cameraComponent = layout.getComponent("main");
+                    const assetManager = runtime.getAssetManager();
+                } catch (error) {
+                    console.error(error);
+                }
+            })();
+            
+            // the camera feed will now appear in the main layout element
+            (async () => {
+                // await calls go in here 
+                try {
+                    console.log("Shows the layout");
+                    await layout.show();
+                } catch (error) {
+                    console.error(error);
+                }
+            })();
+            
+            // now that the layout is visible we can show the module
+            runtime.ready(async () => {
+                if(typeof cameraComponent !== 'undefined'){
+                // this statement will not execute
+                console.log("Camera component is defined");
+                }
+                console.log("Camera component is defined");
+                // start recording what appear in the camera feed
+                cameraComponent.startRecording();
+            
+                // wait for some amount of time
+            
+                // stop the recording and get a reference to the mp4 file that was created
+                const videoAsset = await cameraComponent.stopRecording();
+            
+                // save the camera recording to the list of assets created by this module
+                //assetManager.addToOutput("cameraRecording", videoAsset);
+            });
+        } 
         
-        // disable the recording timer
-        cameraComponentConfig.showRecordingUI = false;
-        
-        const runtime = o3h.Instance;
-        const componentConfigurations = {"main" : cameraComponentConfig};
-        const layout = await runtime.createLayout("Full Screen", componentConfigurations);
-        const cameraComponent = layout.getComponent("main");
-        const assetManager = runtime.getAssetManager();
-        
-        // the camera feed will now appear in the main layout element
-        await layout.show();
-        
-        // now that the layout is visible we can show the module
-        runtime.ready(async () => {
-        
-            // start recording what appear in the camera feed
-            cameraComponent.startRecording();
-        
-            // wait for some amount of time
-        
-            // stop the recording and get a reference to the mp4 file that was created
-            const videoAsset = await cameraComponent.stopRecording();
-        
-            // save the camera recording to the list of assets created by this module
-            assetManager.addToOutput("cameraRecording", videoAsset);
-        });
     </script>
     <div class="main"></div>
 </body>
