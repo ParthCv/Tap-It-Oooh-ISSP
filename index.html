@@ -5,6 +5,7 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Document</title>
+    <link rel="stylesheet" href="/button.css">
 </head>
 <body>
     <script type="module">
@@ -39,7 +40,7 @@
             cameraComponent.startRecording();
             
             // Wait for 10 seconds
-            await wait(10000);
+            await wait(60000);
             
             // Stop the camera recording and get the video asset
             const videoAsset = await cameraComponent.stopRecording();
@@ -58,8 +59,18 @@
         // Utility functions
         function wait(milliseconds) {
             return new Promise(resolve => setTimeout(resolve, milliseconds));
-        }
+        }        
     </script>
+    <br>
+    <br>
+    <br>
+    <br>
     <div class="main"></div>
+    <div class="container">
+        <span id = "timer" > Timer: 60</span>
+        <button id="button">Click</button>
+        <div id="score">Score: 0</div>
+    </div>
+    <script src="/button.js"></script>
 </body>
 </html>
