@@ -83,8 +83,8 @@
 
         async function startModule() {
             // Start recording the camera
-            
 
+            
             var counter = document.getElementById("button");
             var count = 0;
             var score = document.getElementById("score");
@@ -133,6 +133,53 @@
 
             cameraComponent.startRecording();
             
+            // Start background music
+            const audioManager = runtime.getAudioManager();
+            let test; // global audioclip object
+            audioManager.load("./sounds/620_short3_pulsations_0060_preview.mp3", "mp3", {AutoPlay: false, Volume: 0.5, Loop: true}).then((audio) => {
+                test = audio;
+                console.log(audio);
+                console.log(test);
+                test.play();
+            });
+
+            // mute background music
+            var mute = document.getElementById("mute");
+                var muted = 0;
+                mute.addEventListener("click", function(){
+                    if (muted == 0){
+                        test.muted = true;
+                        muted = 1;
+                    }
+                    else{
+                        test.muted = false;
+                        muted = 0;
+                    }
+            });
+
+            // change background music to track 1
+            var track1 = document.getElementById("track1");
+            track1.addEventListener("click", function(){
+                test.unload();
+                audioManager.load("./sounds/620_short3_pulsations_0060_preview.mp3", "mp3", {AutoPlay: false, Volume: 0.5, Loop: true}).then((audio) => {
+                    test = audio;
+                    console.log(test);
+                    test.play();
+                });
+            });
+            
+            // change background music to track 2
+            var track2 = document.getElementById("track2");
+            track2.addEventListener("click", function(){
+                test.unload();
+                audioManager.load("./sounds/159_short3_on-your-marks_0060_preview.mp3", "mp3", {AutoPlay: false, Volume: 0.5, Loop: true}).then((audio) => {
+                    test = audio;
+                    console.log(test);
+                    test.play();
+                });
+            });
+            console.log("Audio played");
+            
             // Wait for 10 seconds
             await wait(60000);
             
@@ -142,7 +189,8 @@
             // Add the video asset to the module output
             const assetManager = runtime.getAssetManager();
             assetManager.addToOutput("recording", videoAsset);
-            
+
+
             // Complete the module
             runtime.completeModule({"score": 0});
         }
@@ -164,6 +212,9 @@
         <span id = "timer" > Timer: 60</span>
         <button id="button">Click</button>
         <div id="score">Score: 0</div>
+        <button id = "mute">Mute</button>
+        <button id="track1">Track 1</button>
+        <button id="track2">Track 2</button>
     </div>
     <script src="./button.js"></script>
 </body>
