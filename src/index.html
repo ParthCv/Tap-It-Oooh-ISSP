@@ -5,7 +5,53 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Document</title>
-    <link rel="stylesheet" href="/button.css">
+    <link rel="stylesheet" href="./button.css">
+    <style>
+        .container  {
+            color: #fff;
+            font-size: 25px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+        }
+        #timer{
+            margin-top: -50px;
+        }
+
+        #button {
+            font-family: sans-serif;
+            background: #F83;
+            padding: 30px;
+            border-radius: 100px;
+            font-size: 30px;
+            display: inline-block;
+            color: #FFF;
+            margin-top: 400px;
+            margin-left: 50%;
+            margin-right: 50%;
+            letter-spacing: 2px;
+            border: 1px solid rgba(0,0,0,.1);
+            outline: none;
+            background: linear-gradient(to bottom, #F64, #F66);
+            box-shadow: 0 10px 30px rgba(255,100,100, .5), 0 20px 100px 10px rgba(255,100,100, .5);
+            transition: all .25s;
+            cursor: pointer; 
+        }
+            
+        #button:active {
+            box-shadow: 0 0px 20px rgba(255,100,100, .5);
+            transform: scale(0.9);
+        }
+
+        #score{
+            margin-top: 60px;
+            /* margin-left: 50%; */
+            /* margin-right: 50%; */
+        }
+
+        
+    </style>
 </head>
 <body>
     <script type="module">
@@ -37,6 +83,54 @@
 
         async function startModule() {
             // Start recording the camera
+            
+
+            var counter = document.getElementById("button");
+            var count = 0;
+            var score = document.getElementById("score");
+
+            const onclick_handler = () => {
+                count += 1;
+                score.innerHTML = "Score:" + "  "+ count + "";
+            };
+
+            const move_around = () => {
+                var x = Math.floor(Math.random() * 500);
+                var y = Math.floor(Math.random() * 500);
+                counter.style.left = x + "px";
+                counter.style.top = y + "px";
+            };
+
+            counter.onclick = onclick_handler; move_around();
+            var timer = 60;
+
+            var started = true;
+            counter.addEventListener('click', function() {
+                console.log(timer);
+                if (started){
+                var myInterval = window.setInterval(function(){
+                if (timer > 0)
+                    timer--;
+                    document.getElementById("timer").innerHTML = "Timer: " + timer;
+                if (timer <= 0) {
+                    counter.setAttribute("disabled", "");
+                    clearInterval(myInterval);
+                }
+                }, 1000);
+                started = false;
+            }
+            });
+
+            // counter.addEventListener("click", moveHover);
+            // function moveHover(event){
+            //     var x = Math.floor(Math.random() * 500)+1;
+            //     var y = Math.floor(Math.random() * 500)+1;
+            //     counter.style.top = x + "px";
+            //     counter.style.left = y + "px";
+
+            // }
+
+
             cameraComponent.startRecording();
             
             // Wait for 10 seconds
@@ -71,6 +165,6 @@
         <button id="button">Click</button>
         <div id="score">Score: 0</div>
     </div>
-    <script src="/button.js"></script>
+    <script src="./button.js"></script>
 </body>
 </html>
