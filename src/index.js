@@ -1,52 +1,33 @@
-function sleep(ms) {
-    return new Promise(resolve => setTimeout(resolve, ms))
-}
+import "./index.css";
+import TapItController from "./TapItController";
 
-function incrementScore () {
-    let score = Number(document.getElementById("score").innerHTML);
-    document.getElementById("score").innerHTML = ++score;
-}
+let controller;
+let o3h = {};
+let instance = {};
 
-async function startTimer(ms) {
-    stopped = false;
-    let stopTimerButton = document.getElementById("stop-button");
 
-    stopTimerButton.addEventListener("click", function() {
-        stopped = true;
-    }, {once: true});
-
-    while (ms > 0 && !stopped) {
-        ms -= 100;
-        await sleep(100);
-        document.getElementById("timer").innerHTML = "Timer: " + Math.floor(ms / 1000);
+import(/* webpackIgnore: true */ '/api/o3h.js').then((o) => {
+        o3h = o;
+        instance = o.Instance;
+        window.o3h = o3h; //Ensure the rest of this page can see o3h  
+        load();
     }
+);
 
-    return ms;
+function timeout(ms) {
+    return new Promise(resolve => setTimeout(resolve, ms));
 }
 
-function createTimer(ms) {
-    document.getElementById("timer").innerHTML = "Timer: " + Math.floor(ms / 1000);
+async function load() {
+    controller = new TapItController(instance);
+
+    await controller.showSingleLayout();
+
+    instance.ready(onStart);
 }
 
-function main() {
-    window.onload = (event) => {
-        numberOfMiliseconds = 60000;
-        createTimer(numberOfMiliseconds);
+async function onStart() {
+    await controller.load();
+    controller.start();
 
-        started = false;
-        let startTimerButton = document.getElementById("start-button");
-
-        startTimerButton.addEventListener("click", function() {
-            if(started) {
-                return;
-            }
-            started = true;
-            startTimer(numberOfMiliseconds).then(function (promise) {
-                numberOfMiliseconds = promise;
-                started = false;
-            });
-        });  
-    };
-};
-
-main();
+}
