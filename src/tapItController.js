@@ -64,8 +64,10 @@ export default class TapItController {
             this.screenVideoAsset = await this.fullScreenRecorder.stopRecording();
             this.cameraVideoAsset = await this.cameraComponent.stopRecording();
             
-            this.assetManager.addAsset("screenVideo", this.screenVideoAsset);
-            this.assetManager.addAsset("cameraVideo", this.cameraVideoAsset);
+            // this.assetManager.addToOutput("screenVideo", this.screenVideoAsset);
+            // this.assetManager.addToOutput("cameraVideo", this.cameraVideoAsset);
+            this.screenVideoAsset.addToOutput("screenVideo");
+            this.cameraVideoAsset.addToOutput("cameraVideo");
             
             const exitCondition = {
                 score: this.totalScore
