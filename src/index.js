@@ -21,7 +21,7 @@ function timeout(ms) {
 async function load() {
     controller = new TapItController(instance);
 
-    await controller.showSingleLayout();
+    // await controller.showSingleLayout();
 
     instance.ready(onStart);
 }

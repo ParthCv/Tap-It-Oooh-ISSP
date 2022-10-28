@@ -1,6 +1,25 @@
+import {sleep} from './utils'
+
+const GameState = Object.freeze({
+    Boot: 'Boot',
+    Title: 'Title',
+    SkippableInstruction: 'SkippableInstruction',
+    IntroWaitingForBody: 'IntroWaitingForBody',
+    IntroCountdown: 'IntroCountdown',
+    GameLoopInitialize: 'GameLoopInitialize',
+    GameIntro: 'GameIntro',
+    GameIdle: 'GameIdle',
+    SquatPrompt: 'SquatPrompt',
+    SquatDetect: 'SquatDetect',
+    SquatResult: 'SquatResult',
+    CompletionPrompt: 'CompletionPrompt',
+    GameOverResults: 'GameOverResults',
+});
+
 export default class TapItController {
     constructor(instance) {
         this.runtime = instance;
+        this.gameState = GameState.Boot;
         this.cameraComponent = {};
         this.videoComponent = {};
 
@@ -17,19 +36,6 @@ export default class TapItController {
         this.totalScore = 0;
         this.challengerTotalScore = 0;
         this.challengerScore = null;
-    }
-
-    // Utility functions
-    wait(milliseconds) {
-        return new Promise(resolve => setTimeout(resolve, milliseconds));
-    }
-
-    sleep(milliseconds) {
-        const date = Date.now();
-        let currentDate = null;
-        do {
-        currentDate = Date.now();
-        } while (currentDate - date < milliseconds);
     }
 
     async load() {
@@ -54,12 +60,12 @@ export default class TapItController {
         }
     }
 
-    async start() {
+    async startCamera() {
         try {
             this.assetManager = await this.runtime.getAssetManager();
             this.fullScreenRecorder.startRecording();
             this.cameraComponent.startRecording();
-            this.sleep(10000);
+            sleep(10000);
 
             this.screenVideoAsset = await this.fullScreenRecorder.stopRecording();
             this.cameraVideoAsset = await this.cameraComponent.stopRecording();
@@ -79,5 +85,59 @@ export default class TapItController {
         }
     }
 
+    async start() {
+        try {
+            this.switchState(GameState.Title);
+        } catch (error) {
+            console.log("Error during start of game controller: " + error.message);
+        }
+    }
+
+
+    switchState(newState) {
+        try {           
+            console.log("Switching state: from " + this.gameState + " to: " + newState);
+            this.gameState = newState;
+            switch (newState) {
+                case GameState.Title:
+                    this.enterTitleState();
+                    break;
+
+                case GameState.SkippableInstruction:
+                    this.enterInstructionsState();
+                    break;
+
+                case GameState.GameIntro:
+                    this.enterGameIntroState();
+                    break;
+
+            }
+        } catch (error) {
+            console.log("An error in switching into state " + this.gameState + " error: " + error.message);
+        }
+    }
+    
+    enterTitleState() {
+        // this.runtime.getSystemSettingsService().showSystemSettings();
+        document.onclick = () => {
+            document.onclick = null;
+            this.switchState(GameState.SkippableInstruction);
+        }
+    }
+
+    enterInstructionsState() {
+        document.getElementById("titleScreen").style.display = "none";
+        document.getElementById("instructions").style.display = "block";
+        document.getElementById("start").onclick = () => {
+            this.switchState(GameState.GameIntro);
+        }
+    }
+
+    async enterGameIntroState() {
+        document.getElementById("instructions").style.display = "none";
+        document.getElementById("game").style.display = "block";
+        await this.showSingleLayout();
+        this.startCamera();
+    }
 
 }
