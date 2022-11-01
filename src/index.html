@@ -3,58 +3,60 @@
 <head>
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="viewport-fit=cover"/>   <!-- Needed when using notch env variables -->
     <title>Document</title>
-    <link rel="stylesheet" href="./button.css">
-    <style>
-        .container  {
-            color: #fff;
-            font-size: 25px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            flex-direction: column;
-        }
-        #timer{
-            margin-top: -50px;
-        }
-
-        #button {
-            font-family: sans-serif;
-            background: #F83;
-            padding: 30px;
-            border-radius: 100px;
-            font-size: 30px;
-            display: inline-block;
-            color: #FFF;
-            margin-top: 400px;
-            margin-left: 50%;
-            margin-right: 50%;
-            letter-spacing: 2px;
-            border: 1px solid rgba(0,0,0,.1);
-            outline: none;
-            background: linear-gradient(to bottom, #F64, #F66);
-            box-shadow: 0 10px 30px rgba(255,100,100, .5), 0 20px 100px 10px rgba(255,100,100, .5);
-            transition: all .25s;
-            cursor: pointer; 
-        }
-            
-        #button:active {
-            box-shadow: 0 0px 20px rgba(255,100,100, .5);
-            transform: scale(0.9);
-        }
-
-        #score{
-            margin-top: 60px;
-            /* margin-left: 50%; */
-            /* margin-right: 50%; */
-        }
-
-        
-    </style>
+    <!-- <link rel="stylesheet" href="./button.css"> -->
 </head>
 <body>
-    <script type="module">
+    <div id="loadingCover" class="hidden">
+
+    </div>
+    <div id="screens">
+        <div id="splashScreen" class="screen hidden">
+            <p class="continue-button">Tap to Continue</button>
+        </div>
+        <div id="pregameLeaderboard" class="screen hidden">
+            <button>Next</button>
+        </div>
+        <div id="tutorialScreen" class="screen hidden">
+            <p>Tutorial</p>
+            <button>Next</button>
+        </div>
+        <div id="musicSelectionScreen" class="screen hidden">
+            <button id="track1">Track 1</button>
+            <button id="track2">Track 2</button>
+            <button>Next</button>
+        </div>
+        <div id="buttonSelectionScreen" class="screen hidden">
+            <button>Play</button>
+        </div>
+        <div id="vsScreen" class="screen hidden">
+
+        </div>
+        <div id="gameplayScreen" screen="screen hidden">
+            <p id="timer">Timer: 60</p>
+            <button id="game-button">Click</button>
+            <p id="score">Score: 0</p>
+        </div>
+        <div id="scoreCompareScreen" class="screen hidden">
+            <div class="stars-background"></div>
+            <div class="leaderboard-container"></div>
+            <button>Next</button>
+        </div>
+        <div id="reviewScreen" class="screen hidden">
+            <div id="reviewScore"></div>
+            <div class="buttons">
+                <button id="review_retry">Retry</button>
+                <button id="review_done">Done</button>
+            </div>
+        </div>
+        <div id="reactionScreen" class="screen hidden">
+            <button id="reaction_submit" style="left: inherit; right:5vh">Submit</button>
+        </div>
+    </div>
+
+
+    <!-- <script type="module">
         import * as o3h from "/api/o3h.js";
         const runtime = o3h.Instance;
 
@@ -216,6 +218,6 @@
         <button id="track1">Track 1</button>
         <button id="track2">Track 2</button>
     </div>
-    <script src="./button.js"></script>
+    <script src="./button.js"></script> -->
 </body>
 </html>

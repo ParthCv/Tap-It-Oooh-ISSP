@@ -1,52 +1,10 @@
-function sleep(ms) {
-    return new Promise(resolve => setTimeout(resolve, ms))
-}
+import "./index.css";
+import App from "./app";
 
-function incrementScore () {
-    let score = Number(document.getElementById("score").innerHTML);
-    document.getElementById("score").innerHTML = ++score;
-}
+let o3h = {};
 
-async function startTimer(ms) {
-    stopped = false;
-    let stopTimerButton = document.getElementById("stop-button");
+import(/* webpackIgnore: true */ "/api/o3h.js").then(async (o) => {
+    o3h = o;
 
-    stopTimerButton.addEventListener("click", function() {
-        stopped = true;
-    }, {once: true});
-
-    while (ms > 0 && !stopped) {
-        ms -= 100;
-        await sleep(100);
-        document.getElementById("timer").innerHTML = "Timer: " + Math.floor(ms / 1000);
-    }
-
-    return ms;
-}
-
-function createTimer(ms) {
-    document.getElementById("timer").innerHTML = "Timer: " + Math.floor(ms / 1000);
-}
-
-function main() {
-    window.onload = (event) => {
-        numberOfMiliseconds = 60000;
-        createTimer(numberOfMiliseconds);
-
-        started = false;
-        let startTimerButton = document.getElementById("start-button");
-
-        startTimerButton.addEventListener("click", function() {
-            if(started) {
-                return;
-            }
-            started = true;
-            startTimer(numberOfMiliseconds).then(function (promise) {
-                numberOfMiliseconds = promise;
-                started = false;
-            });
-        });  
-    };
-};
-
-main();
+    window.mainApp = new App(o3h);
+});

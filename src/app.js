@@ -1,119 +1,170 @@
-import "./style.scss";
-
-import ScreenManagerInstance from "./screenManager";
-import RecordingManagerInstance from "./recordingManager";
-import PersistentDataManagerInstance from "./persistentDataManager";
-
+import {INPUT_OUTPUT_ASSETS, SCREENS, HAVE_WATCHED_TUTORIAL_SETTING} from "./const";
 import SplashScreen from "./screens/splashScreen";
 import TutorialScreen from "./screens/tutorialScreen";
-import ExperienceScreen from "./screens/experienceScreen";
-import RecordingScreen from "./screens/recordingScreen";
-import ReviewScreen from "./screens/reviewScreen";
-
-import { PreloadList, PreloadListLoader } from "./libs/Preloader";
-import { isCreatorMode } from "./util";
-import { ASSETS } from "./const";
+import {PreloadListLoader} from "./libs/Preloader";
+import GameplayScreen from "./screens/gameplayScreen";
+// import ReviewScreen from "./screens/reviewScreen";
+// import AudiencePregameLeaderboard from "./screens/audiencePregameLeaderboard";
+// import ScoreComparisonScreen from "./screens/scoreComparison";
+import LayoutManagerInstance from "./layoutManager";
+import ScreenManagerInstance from "./screenManager";
+// import Leaderboard from "./libs/leaderboard";
+// import VsScreen from "./screens/vsScreen";
+import * as util from "./util";
 
 export default class App {
-    constructor() {    
+    constructor(o3h) {
+        this.o3h = o3h;
         this.runtime = o3h.Instance;
-        this.runtime.adjustViewport("device-width", "device-height");
 
-        this.assetManager = this.runtime.getAssetManager();
-        this.inputManager = this.runtime.getInputManager();
 
-        this.systemSettingsService = this.runtime.getSystemSettingsService();
-        this.analyticService = this.runtime.getAnalyticService();
+        LayoutManagerInstance.initSingleton(o3h);
+        // ScreenManagerInstance.setAnalyticService(this.runtime.getAnalyticService());
 
-        this.splashScreen = new SplashScreen(this);
-        this.tutorialScreen = new TutorialScreen(this);
-        this.experienceScreen = new ExperienceScreen(this);
-        this.recordingScreen = new RecordingScreen(this);
-        this.reviewScreen = new ReviewScreen(this);
+        this.score = 0;
+        // this.leaderboard = new Leaderboard(o3h);
 
-        this.message = ""; // Variable used to store the creator's message to the audience
+        this.splashScreen = new SplashScreen(o3h, this);
+        this.tutorialScreen = new TutorialScreen(o3h, this);
+        // this.vsScreen = new VsScreen(o3h, this);
+        this.gameplayScreen = new GameplayScreen(o3h, this);
+        // this.reviewScreen = new ReviewScreen(o3h, this);
 
-        this.init();
+        // this.isCreatorMode = util.isCreatorMode(o3h);
+        // this.isAudienceMode = util.isAudienceMode(o3h);
+
+        // these 2 screens only happen in audience mode
+        // if (this.isAudienceMode){
+        //     this.pregameLeaderboardScreen = new AudiencePregameLeaderboard(o3h, this);
+        //     this.scoreCompareScreen = new ScoreComparisonScreen(o3h, this);
+        // }
+
+        this.listPreloader = new PreloadListLoader();
+
+        // some stuff we can't do in the constructor, since we need to await calls.
+        // we'll do that stuff in init()
+        this.doAsyncSetup();
     }
 
-    async init() {
-        const managerPreloader = new PreloadList();
+    async doAsyncSetup() {
+        // need to init each screen. pregameLeaderboard and scoreCompare only happen in audience mode.
+        const allScreens = []
+        allScreens.push(this.splashScreen);
+        // if (this.isAudienceMode) {
+        //     allScreens.push(this.pregameLeaderboardScreen);
+        // }
+        allScreens.push(this.tutorialScreen);
+        // if (this.isAudienceMode) {
+        //     allScreens.push(this.vsScreen);
+        // }
+        allScreens.push(this.gameplayScreen);
+        // if (this.isAudienceMode) {
+        //     allScreens.push(this.scoreCompareScreen);
+        // }
+        // allScreens.push(this.reviewScreen);
 
-        managerPreloader.addLoad(() => RecordingManagerInstance.init(this.runtime.getNativeUIManager(), this.runtime.getControlManager(),
-        () => {
-            // Hide UI when recording starts
-        },
-        () => {
-            // Show the review screen when recording stops
-            this.showReview();
-        }));
-        managerPreloader.addLoad(() => PersistentDataManagerInstance.init());
-
-        await managerPreloader.loadAll();
-
-        const listPreloader = new PreloadListLoader();
-        listPreloader.addPreloadList(this.splashScreen.getPreloadList());
-        listPreloader.addPreloadList(this.tutorialScreen.getPreloadList());
-        listPreloader.addPreloadList(this.experienceScreen.getPreloadList());
-        listPreloader.addPreloadList(this.recordingScreen.getPreloadList());
-        listPreloader.addPreloadList(this.reviewScreen.getPreloadList());
-    
-        listPreloader.loadAll();
-
-        await ScreenManagerInstance.showScreen(this.splashScreen);
-    
-        this.runtime.ready(() => {
-            // Start splash screen animation, music, etc.
-
-            // Show the title element to start its CSS animation
-            document.querySelector("#splashScreen .title").classList.remove("hidden");
+        allScreens.forEach((s) => {
+            ScreenManagerInstance.addScreen(s)
+            this.listPreloader.addPreloadList(s.getPreloadList());
         });
+
+        // don't await this, since we want it to kick off and run in the background
+        // while user begins to use app.
+        this.listPreloader.loadAll();
+
+        // show the initial screen
+        await ScreenManagerInstance.showScreen(SCREENS.SPLASH);
+
+        // this will tell the client to show our app
+        this.runtime.ready(this.onAppShowing);
     }
 
-    async showTutorial() {
-        await ScreenManagerInstance.showScreen(this.tutorialScreen);
+    async onAppShowing() {
+        // app is showing now, do anything that was waiting for it to be visible
     }
 
-    async showExperience() {
-        await ScreenManagerInstance.showScreen(this.experienceScreen);
+    async leaveSplashScreen() {
+        // if (this.isAudienceMode) {
+        //     await this.goToPregameLeaderboard();
+        // }
+        // else {
+            await this.goToTutorial();
+        // }
     }
 
-    async showRecording() {
-        await ScreenManagerInstance.showScreen(this.recordingScreen);
+    async goToPregameLeaderboard() {
+        await ScreenManagerInstance.showScreen(SCREENS.PREGAME_LEADERBOARD);
     }
 
-    async showReview() {
-        ScreenManagerInstance.showLoadingCover();
-        const fullScreenVideoAsset = RecordingManagerInstance.getFullScreenRecording();
+    async goToTutorial() {
+        // MUSTFIX: restore this, but need to test tutorial repeatedly on dev client, and there's no way to clear data right now
+        /*
+        const dataService = this.runtime.getUserPersistentDataService();
+        const settings = await dataService.getSettingsDataAsync() || {};
+        console.log('Current settings data', settings);
 
-        await this.reviewScreen.getPreloadList().loadAll();
-
-        const videoPath = await fullScreenVideoAsset.getVideoPath();
-        await this.reviewScreen.reviewVideoComponent.prepareVideo(videoPath);
-
-        await ScreenManagerInstance.showScreen(this.reviewScreen);
-        ScreenManagerInstance.hideLoadingCover();
-    }
-
-    async exit() {
-        // Add the full-screen video recording as an output asset
-        this.assetManager.addToOutput(ASSETS.FULL_SCREEN_RECORDING, RecordingManagerInstance.getFullScreenRecording());
-
-        if (isCreatorMode()) {
-            // Add creator mode assets to output
-
-            const replayRecorder = await this.runtime.createReplayRecorder();
-            // Add the creator message as a replay data property
-            replayRecorder.addProperty("message", this.message);
-
-            // Get the replay data from the replay recorder and add it as an output asset
-            const replayData = await replayRecorder.getReplayData();
-            this.assetManager.addToOutput(ASSETS.REPLAY_DATA, replayData);
+        if (HAVE_WATCHED_TUTORIAL_SETTING in settings) {
+            return this.goToGameplay();
         }
+        else {
+         */
+            await ScreenManagerInstance.showScreen(SCREENS.TUTORIAL);
+        /*
+        }
+         */
+    }
 
-        // End the module with a score of 0 (non-game module)
-        this.runtime.completeModule({
-            "score": 0
-        });
+    async leaveTutorialScreen() {
+        // const dataService = this.runtime.getUserPersistentDataService();
+        // const settings = await dataService.getSettingsDataAsync() || {};
+        // settings[HAVE_WATCHED_TUTORIAL_SETTING] = true;
+        // dataService.setSettingsDataAsync(settings);
+        // console.log('New settings data', settings);
+
+        // if (this.isAudienceMode) {
+        //     await this.goToVs();
+        // }
+        // else {
+        //     await this.goToGameplay();
+        // }
+        await this.goToGameplay();
+    }
+
+    async goToVs() {
+        await ScreenManagerInstance.showScreen(SCREENS.VS);
+    }
+
+    async goToGameplay() {
+        await ScreenManagerInstance.showScreen(SCREENS.GAMEPLAY);
+    }
+
+    async leaveGameplay(fullScreenRecording, camRecording, replayData, score){
+        this.fullScreenRecording = fullScreenRecording;
+        this.camRecording = camRecording;
+        this.replayData = replayData;
+        this.score = score;//TODO: decide if we should allow negative scores or not: Math.max(0, score);    // protect against negative scores, which are possible if player is terrible
+        this.reviewScreen.setScore(this.score);
+
+        if (this.isCreatorMode) {
+            this.goToReview();
+        }
+        else {
+            ScreenManagerInstance.showScreen(SCREENS.SCORE_COMPARE);
+        }
+    }
+
+    // async goToReview() {
+    //     const assetManager = this.runtime.getAssetManager();
+    //     assetManager.addToOutput(INPUT_OUTPUT_ASSETS.OUTPUT_FULLSCREEN_RECORDING, this.fullScreenRecording);
+    //     assetManager.addToOutput(INPUT_OUTPUT_ASSETS.OUTPUT_CAMERA, this.camRecording);
+    //     if (this.isCreatorMode) {
+    //         assetManager.addToOutput(INPUT_OUTPUT_ASSETS.OUTPUT_REPLAY_DATA, this.replayData);
+    //     }
+
+    //     await ScreenManagerInstance.showScreen(SCREENS.REVIEW);
+    // }
+
+    async endModule() {
+        this.runtime.completeModule({ score: this.score });
     }
 }

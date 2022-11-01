@@ -15,26 +15,21 @@ class LayoutManager {
         this.layoutsByName = new Map();
     }
 
-    /**
-     * Creates a layout and returns a promise that resolves to it.
-     * API Reference: https://docs.oooh.io/docs/api-reference-layoutmanager#layoutmanagercreatelayout-method
-     * 
-     * @param {string} layoutName - The name of the layout
-     * @param {module:o3h~ComponentConfig} layoutConfig - The layout config
-     * @param {module:o3h.Component} layoutComponents - Component definitions to use in the layout
-     * @param {module:o3h~Transition} existingComponents - Existing components to reuse
-     * 
-     * @returns {Promise.<module:o3h~Layout>}
-     */
-    createLayout(layoutName, layoutConfig, layoutComponents, existingComponents = {}) {
+    initSingleton(o3h) {
+        this.o3h = o3h;
+        this.runtime = o3h.Instance;
+    }
+
+    // creates layouts, but is essentially thread-locked, only allowing one layout to be created at a time.
+    async createLayout(layoutName, layoutConfig, layoutComponents, existingComponents = {}) {
         if (this.layoutsByName.has(layoutName)) {
             return this.layoutsByName.get(layoutName);
         }
 
-        const layoutPromise = o3h.Instance.getLayoutManager().createLayout(layoutConfig, layoutComponents, existingComponents);
-        this.layoutsByName.set(layoutName, layoutPromise);
+        const layout = await this.runtime.createLayout(layoutConfig, layoutComponents, existingComponents);
+        this.layoutsByName.set(layoutName, layout);
 
-        return layoutPromise;
+        return layout;
     }
 
     /**

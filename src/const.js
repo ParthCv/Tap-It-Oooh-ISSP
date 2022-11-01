@@ -63,3 +63,16 @@ export const getFullScreenLayout = () => ({
         }
     ]
 });
+
+export const SCREENS = {
+    SPLASH: 'splash',
+    PREGAME_LEADERBOARD: 'pregameLeaderboard',
+    TUTORIAL: 'tutorial',
+    VS: 'vs',
+    GAMEPLAY: 'gameplay',
+    REVIEW: 'review',
+    SCORE_COMPARE: 'scoreComparison',
+    REACTION: 'reaction',
+}
+
+export const HAVE_WATCHED_TUTORIAL_SETTING = 'haveWatchedTutorial';
