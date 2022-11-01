@@ -14,6 +14,7 @@ const GameState = Object.freeze({
     SquatResult: 'SquatResult',
     CompletionPrompt: 'CompletionPrompt',
     GameOverResults: 'GameOverResults',
+    GameLeaderboard: 'GameLeaderboard',
 });
 
 export default class TapItController {
@@ -110,6 +111,10 @@ export default class TapItController {
                 case GameState.GameIntro:
                     this.enterGameIntroState();
                     break;
+                
+                case GameState.GameLeaderboard:
+                    this.enterLeaderboardState();
+                    break;
 
             }
         } catch (error) {
@@ -138,6 +143,44 @@ export default class TapItController {
         document.getElementById("game").style.display = "block";
         await this.showSingleLayout();
         this.startCamera();
+    }
+
+    async enterLeaderboardState() {
+        // To play ending song while displaying leaderboard
+        // this.audioController.startEndMusic();
+        this.finishRecording(true);
+
+        document.getElementById("game").style.display = "none";
+        document.getElementById("leaderboard").style.display = "block";
+        document.getElementById("leaderboard").innerHTML = "Your score is: " + this.totalScore;
+
+
+        document.getElementById("gameoverbutton").onclick = async () => {
+            document.getElementById("gameoverbutton").onclick = null;
+
+            await this.finishRecording(false);
+            this.saveAssets();
+
+            this.bodyPoseTracker.stop();
+
+            const exitCondition = {
+                score: this.totalScore
+            };
+
+            this.runtime.completeModule(exitCondition);
+        };
+
+        document.getElementById("retrybutton").onclick = async () => {
+            document.getElementById("retrybutton").onclick = null;
+
+            await this.finishRecording(false);
+            await this.discardAssets();
+
+            this.resetGame();
+            document.getElementById("leaderboard").style.display = "none";
+
+            this.switchState(GameState.GameIntro);
+        };
     }
 
 }

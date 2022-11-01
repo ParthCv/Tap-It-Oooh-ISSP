@@ -1,4 +1,5 @@
 import { ACHIEVEMENT_TYPE, LeaderboardData } from '../../leaderboardData.js';
+import { count } from '../../button.js';
 
 const leaderboardData = new LeaderboardData();
 // this can take several seconds, be sure to do this in the background, so user is not blocked.
@@ -17,7 +18,7 @@ top3.forEach((entry) => { SomehowRenderEntry(
     entry.IsHost, entry.IsHostReplay, entry.IsEmphasized); });
 
     /* gameplay happens here */
-// const score = ... somehow obtained during gameplay ...
+const score = count();
 
 leaderboardData.addScore(score);
 const newTop3 = leaderboardData.getPodiumEntries();
