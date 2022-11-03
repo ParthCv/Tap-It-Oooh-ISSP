@@ -14,6 +14,7 @@ const GameState = Object.freeze({
     SquatResult: 'SquatResult',
     CompletionPrompt: 'CompletionPrompt',
     GameOverResults: 'GameOverResults',
+    GameLeaderboard: 'GameLeaderboard',
 });
 
 export default class TapItController {
@@ -65,10 +66,42 @@ export default class TapItController {
         try {
             this.fullScreenRecorder.startRecording();
             this.cameraComponent.startRecording();
-            sleepProg(10000);
+            //If timer reaches 0 then game over
 
+            
+            // this.screenVideoAsset = await this.fullScreenRecorder.stopRecording();
+            // this.cameraVideoAsset = await this.cameraComponent.stopRecording();
+            
+            // // this.assetManager.addToOutput("screenVideo", this.screenVideoAsset);
+            // // this.assetManager.addToOutput("cameraVideo", this.cameraVideoAsset);
+            // this.screenVideoAsset.addToOutput("screenVideo");
+            // this.cameraVideoAsset.addToOutput("cameraVideo");
+            
+            // const exitCondition = {
+            //     score: this.totalScore
+            // };
+
+            // this.runtime.completeModule(exitCondition);
+        } catch (error) {
+            console.log("Error during start of game controller: " + error.message);
+        }
+    }
+
+    async gameOver(){
+        try{
             this.screenVideoAsset = await this.fullScreenRecorder.stopRecording();
             this.cameraVideoAsset = await this.cameraComponent.stopRecording();
+            this.saveRecording();
+            
+        } catch (error) {
+            console.log("Error during game over: " + error.message);
+        }
+    }
+
+    async saveRecording(){
+        try{
+            // this.screenVideoAsset = await this.fullScreenRecorder.stopRecording();
+            // this.cameraVideoAsset = await this.cameraComponent.stopRecording();
             
             // this.assetManager.addToOutput("screenVideo", this.screenVideoAsset);
             // this.assetManager.addToOutput("cameraVideo", this.cameraVideoAsset);
@@ -81,7 +114,7 @@ export default class TapItController {
 
             this.runtime.completeModule(exitCondition);
         } catch (error) {
-            console.log("Error during start of game controller: " + error.message);
+            console.log("Error during save recording: " + error.message);
         }
     }
 
@@ -114,6 +147,10 @@ export default class TapItController {
                 case GameState.GameIntro:
                     this.enterGameIntroState();
                     break;
+                
+                case GameState.GameLeaderboard:
+                    this.enterLeaderboardState();
+                    break;
 
             }
         } catch (error) {
@@ -132,6 +169,10 @@ export default class TapItController {
     enterInstructionsState() {
         hideElement("titleScreen")
         showElement("instructions")
+        document.getElementById("titleScreen").style.display = "none";
+        document.getElementById("game").style.display = "none";
+        document.getElementById("leaderboard").style.display = "none";
+        document.getElementById("instructions").style.display = "block";
         document.getElementById("start").onclick = () => {
             this.switchState(GameState.IntroCountdown);
         }
@@ -173,19 +214,96 @@ export default class TapItController {
         }, 1000);
     }
     
-    enterGameIntroState() {
-        //this.startCamera();
-        while (this.totalTime > 0) {
-            this.totalTime--;
-            console.log("Time: " + this.totalTime);
-            sleepProg(1000);
-        }
-        const exitCondition = {
-            score: this.totalScore
+    async enterGameIntroState() {
+        document.getElementById("titleScreen").style.display = "none";
+        document.getElementById("instructions").style.display = "none";
+        document.getElementById("leaderboard").style.display = "none";
+        document.getElementById("game").style.display = "block";
+        await this.showSingleLayout();
+        // this.startCamera();
+        this.assetManager = await this.runtime.getAssetManager();
+        this.fullScreenRecorder.startRecording();
+        this.cameraComponent.startRecording();
+        var counter = document.getElementById("button");
+        var count = 0;
+        var score = document.getElementById("score");
+
+        const onclick_handler = () => {
+            count += 1;
+            score.innerHTML = "Score:" + "  "+ count + "";
         };
 
-        this.runtime.completeModule(exitCondition);
+        const move_around = () => {
+            var x = Math.floor(Math.random() * 500);
+            var y = Math.floor(Math.random() * 500);
+            counter.style.left = x + "px";
+            counter.style.top = y + "px";
+        };
 
+        counter.onclick = onclick_handler; move_around();
+        var timer = 60;
+
+        var started = true;
+        counter.addEventListener('click', function() {
+            console.log(timer);
+            if (started){
+            var myInterval = window.setInterval(function(){
+            if (timer > 0)
+                timer--;
+                document.getElementById("timer").innerHTML = "Timer: " + timer;
+            if (timer <= 0) {
+                counter.setAttribute("disabled", "");
+                clearInterval(myInterval);
+            }
+            }, 1000);
+            started = false;
+        }
+        });
+        // document.getElementById("button").onclick = () => {
+        //     this.switchState(GameState.GameLeaderboard);
+        // }
+    }
+
+    async enterLeaderboardState() {
+        // To play ending song while displaying leaderboard
+        // this.audioController.startEndMusic();
+        // this.finishRecording(true);
+
+        document.getElementById("game").style.display = "none";
+        document.getElementById("instructions").style.display = "none";
+        document.getElementById("titleScreen").style.display = "none";
+        document.getElementById("leaderboard").style.display = "block";
+        document.getElementById("finalscore").innerHTML = "Your score is: " + this.totalScore;
+
+
+        document.getElementById("gameoverbutton").onclick = () => {
+            // document.getElementById("gameoverbutton").onclick = null;
+
+            // await this.finishRecording(false);
+            // this.saveAssets();
+
+            // this.bodyPoseTracker.stop();
+
+            // const exitCondition = {
+            //     score: this.totalScore
+            // };
+
+            // this.runtime.completeModule(exitCondition);
+            this.gameOver();
+        };
+
+        document.getElementById("retrybutton").onclick = async () => {
+            document.getElementById("retrybutton").onclick = null;
+
+            await this.finishRecording(false);
+            await this.discardAssets();
+
+            this.resetGame();
+            document.getElementById("leaderboard").style.display = "none";
+
+            this.switchState(GameState.GameIntro);
+        };
+        this.gameOver();
     }
 
 }

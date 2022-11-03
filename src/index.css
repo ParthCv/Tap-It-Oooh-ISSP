@@ -60,7 +60,11 @@
     flex-direction: column;
   }
 #timer{
-    margin-top: -50px;
+    margin-top: 80px;
+    font-size: 50px;
+    font-weight: bold;
+    text-align: center;
+    color: #fff;
 }
 
 #button {
@@ -90,6 +94,10 @@
 
 #score{
     margin-top: 60px;
+    font-size: 50px;
+    font-weight: bold;
+    text-align: center;
+    color: #fff;
     /* margin-left: 50%; */
     /* margin-right: 50%; */
 }
