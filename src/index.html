@@ -5,217 +5,37 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Document</title>
-    <link rel="stylesheet" href="./button.css">
-    <style>
-        .container  {
-            color: #fff;
-            font-size: 25px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            flex-direction: column;
-        }
-        #timer{
-            margin-top: -50px;
-        }
-
-        #button {
-            font-family: sans-serif;
-            background: #F83;
-            padding: 30px;
-            border-radius: 100px;
-            font-size: 30px;
-            display: inline-block;
-            color: #FFF;
-            margin-top: 400px;
-            margin-left: 50%;
-            margin-right: 50%;
-            letter-spacing: 2px;
-            border: 1px solid rgba(0,0,0,.1);
-            outline: none;
-            background: linear-gradient(to bottom, #F64, #F66);
-            box-shadow: 0 10px 30px rgba(255,100,100, .5), 0 20px 100px 10px rgba(255,100,100, .5);
-            transition: all .25s;
-            cursor: pointer; 
-        }
-            
-        #button:active {
-            box-shadow: 0 0px 20px rgba(255,100,100, .5);
-            transform: scale(0.9);
-        }
-
-        #score{
-            margin-top: 60px;
-            /* margin-left: 50%; */
-            /* margin-right: 50%; */
-        }
-
-        
-    </style>
 </head>
 <body>
-    <script type="module">
-        import * as o3h from "/api/o3h.js";
-        const runtime = o3h.Instance;
-
-        // Global variables
-        let cameraComponent;
-
-        // Module functions
-        async function setupModule() {
-            runtime.adjustViewport("device-width", "device-height");
-            
-            // Camera component configuration
-            const cameraConfig = new o3h.CameraComponentConfig();
-            cameraConfig.resolutionScale = o3h.CameraResolutionScale.Full; // Full resolution
-            cameraConfig.cameraType = o3h.CameraType.FrontFacing;
-            
-            // Creating a full-screen camera layout
-            const componentConfig = {"main": cameraConfig};
-            const layout = await runtime.createLayout("Full Screen", componentConfig);
-            
-            // Make the layout active
-            await layout.show();
-
-            // Get the camera component and set as a global variable
-            cameraComponent = layout.getComponent("main");
-        }
-
-        async function startModule() {
-            // Start recording the camera
-
-            
-            var counter = document.getElementById("button");
-            var count = 0;
-            var score = document.getElementById("score");
-
-            const onclick_handler = () => {
-                count += 1;
-                score.innerHTML = "Score:" + "  "+ count + "";
-            };
-
-            const move_around = () => {
-                var x = Math.floor(Math.random() * 500);
-                var y = Math.floor(Math.random() * 500);
-                counter.style.left = x + "px";
-                counter.style.top = y + "px";
-            };
-
-            counter.onclick = onclick_handler; move_around();
-            var timer = 60;
-
-            var started = true;
-            counter.addEventListener('click', function() {
-                console.log(timer);
-                if (started){
-                var myInterval = window.setInterval(function(){
-                if (timer > 0)
-                    timer--;
-                    document.getElementById("timer").innerHTML = "Timer: " + timer;
-                if (timer <= 0) {
-                    counter.setAttribute("disabled", "");
-                    clearInterval(myInterval);
-                }
-                }, 1000);
-                started = false;
-            }
-            });
-
-            // counter.addEventListener("click", moveHover);
-            // function moveHover(event){
-            //     var x = Math.floor(Math.random() * 500)+1;
-            //     var y = Math.floor(Math.random() * 500)+1;
-            //     counter.style.top = x + "px";
-            //     counter.style.left = y + "px";
-
-            // }
-
-
-            cameraComponent.startRecording();
-            
-            // Start background music
-            const audioManager = runtime.getAudioManager();
-            let test; // global audioclip object
-            audioManager.load("./sounds/620_short3_pulsations_0060_preview.mp3", "mp3", {AutoPlay: false, Volume: 0.5, Loop: true}).then((audio) => {
-                test = audio;
-                console.log(audio);
-                console.log(test);
-                test.play();
-            });
-
-            // mute background music
-            var mute = document.getElementById("mute");
-                var muted = 0;
-                mute.addEventListener("click", function(){
-                    if (muted == 0){
-                        test.muted = true;
-                        muted = 1;
-                    }
-                    else{
-                        test.muted = false;
-                        muted = 0;
-                    }
-            });
-
-            // change background music to track 1
-            var track1 = document.getElementById("track1");
-            track1.addEventListener("click", function(){
-                test.unload();
-                audioManager.load("./sounds/620_short3_pulsations_0060_preview.mp3", "mp3", {AutoPlay: false, Volume: 0.5, Loop: true}).then((audio) => {
-                    test = audio;
-                    console.log(test);
-                    test.play();
-                });
-            });
-            
-            // change background music to track 2
-            var track2 = document.getElementById("track2");
-            track2.addEventListener("click", function(){
-                test.unload();
-                audioManager.load("./sounds/159_short3_on-your-marks_0060_preview.mp3", "mp3", {AutoPlay: false, Volume: 0.5, Loop: true}).then((audio) => {
-                    test = audio;
-                    console.log(test);
-                    test.play();
-                });
-            });
-            console.log("Audio played");
-            
-            // Wait for 10 seconds
-            await wait(60000);
-            
-            // Stop the camera recording and get the video asset
-            const videoAsset = await cameraComponent.stopRecording();
-            
-            // Add the video asset to the module output
-            const assetManager = runtime.getAssetManager();
-            assetManager.addToOutput("recording", videoAsset);
-
-
-            // Complete the module
-            runtime.completeModule({"score": 0});
-        }
-
-        // Setup module then display the module to the player
-        setupModule().then(() => runtime.ready(startModule));
-
-        // Utility functions
-        function wait(milliseconds) {
-            return new Promise(resolve => setTimeout(resolve, milliseconds));
-        }        
-    </script>
-    <br>
-    <br>
-    <br>
-    <br>
-    <div class="main"></div>
-    <div class="container">
+    <!-- <div class="container">
         <span id = "timer" > Timer: 60</span>
         <button id="button">Click</button>
         <div id="score">Score: 0</div>
         <button id = "mute">Mute</button>
         <button id="track1">Track 1</button>
         <button id="track2">Track 2</button>
+    </div> -->
+    <div id="titleScreen">
+        <div class="title"></div>
+        <div class="startText"><h3>Tap &nbsp; to &nbsp; start!</h3></div>
     </div>
-    <script src="./button.js"></script>
+    <div id="instructions">
+        <!-- <h1>Hello world</h1> -->
+        <button id = "start">Start</button>
+    </div>
+    <div id="game">
+            <div id = "timer" > Timer: 60</div>
+            <button id="button">Click</button>
+            <div id="score">Score: 0</div>
+            <!-- <button id = "mute">Mute</button>
+            <button id="track1">Track 1</button>
+            <button id="track2">Track 2</button> -->
+    </div>
+    <div id="leaderboard">
+        <h1>Leaderboard</h1>
+        <span id="finalscore"></span>
+        <button id="gameoverbutton">Game Over</button>
+        <button id="retrybutton">Retry</button>
+    </div>
 </body>
 </html>
