@@ -1,4 +1,4 @@
-import {sleep} from './utils'
+import {sleepProg, hideElement, showElement} from './utils'
 
 const GameState = Object.freeze({
     Boot: 'Boot',
@@ -35,6 +35,7 @@ export default class TapItController {
 
         this.recording = false;
         this.totalScore = 0;
+        this.totalTime = 10;
         this.challengerTotalScore = 0;
         this.challengerScore = null;
     }
@@ -63,7 +64,6 @@ export default class TapItController {
 
     async startCamera() {
         try {
-            this.assetManager = await this.runtime.getAssetManager();
             this.fullScreenRecorder.startRecording();
             this.cameraComponent.startRecording();
             //If timer reaches 0 then game over
@@ -140,6 +140,10 @@ export default class TapItController {
                     this.enterInstructionsState();
                     break;
 
+                case GameState.IntroCountdown:
+                    this.enterInroCountdownState();
+                    break;
+
                 case GameState.GameIntro:
                     this.enterGameIntroState();
                     break;
@@ -163,15 +167,53 @@ export default class TapItController {
     }
 
     enterInstructionsState() {
+        hideElement("titleScreen")
+        showElement("instructions")
         document.getElementById("titleScreen").style.display = "none";
         document.getElementById("game").style.display = "none";
         document.getElementById("leaderboard").style.display = "none";
         document.getElementById("instructions").style.display = "block";
         document.getElementById("start").onclick = () => {
-            this.switchState(GameState.GameIntro);
+            this.switchState(GameState.IntroCountdown);
         }
     }
 
+    async enterInroCountdownState() {
+        hideElement("instructions")
+        await this.startCountDown().then(() => {
+            showElement("game")
+            const countDown = document.getElementById("game_start_timer");
+            console.log("countDown: " + countDown);
+        });
+        await this.showSingleLayout().then(() => {
+            this.switchState(GameState.GameIntro);
+        });
+        
+    }
+
+    
+    async startCountDown() {
+        console.log("In startCountDown");
+        const countDown = document.getElementById("game_start_timer");
+        countDown.innerHTML = "3";
+        console.log("countDown: " + countDown.innerHTML);
+        setTimeout(() => {
+            countDown.innerHTML = "2";
+            console.log("countDown: " + countDown.innerHTML);
+            setTimeout(() => {
+                countDown.innerHTML = "1";
+                console.log("countDown: " + countDown.innerHTML);
+                setTimeout(() => {
+                    countDown.innerHTML = "GO!";
+                    console.log("countDown: " + countDown.innerHTML);
+                    setTimeout(() => {
+                        countDown.innerHTML = "";
+                    }, 1000);
+                }, 1000);
+            }, 1000);
+        }, 1000);
+    }
+    
     async enterGameIntroState() {
         document.getElementById("titleScreen").style.display = "none";
         document.getElementById("instructions").style.display = "none";

@@ -2,7 +2,7 @@ export function wait(milliseconds) {
     return new Promise(resolve => setTimeout(resolve, milliseconds));
 }
 
-export function sleep(milliseconds) {
+export function sleepProg(milliseconds) {
     const date = Date.now();
     let currentDate = null;
     do {
@@ -15,5 +15,5 @@ export function showElement(name, displayType = "block") {
 }
 
 export function hideElement(name) {
-    document.getElementById(name).style.display = "hidden";
+    document.getElementById(name).style.display = "none";
 }
