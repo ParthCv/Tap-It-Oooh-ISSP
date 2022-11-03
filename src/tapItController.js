@@ -1,4 +1,7 @@
 import {sleepProg, hideElement, showElement} from './utils'
+import { PreloadList, PreloadListLoader } from './libs/Preloader';
+import SoundManagerInstance from './soundManager';
+import {SOUNDS} from "./const";
 
 const GameState = Object.freeze({
     Boot: 'Boot',
@@ -38,10 +41,19 @@ export default class TapItController {
         this.totalTime = 10;
         this.challengerTotalScore = 0;
         this.challengerScore = null;
+
+        
+        this.preloadList = new PreloadList();
     }
 
     async load() {
+        this.preloadList.addLoad(() => SoundManagerInstance.loadSound(SOUNDS.BG_MUSIC));
         this.fullScreenRecorder = await this.runtime.getControlManager().getFullScreenRecorder();
+
+        // don't await this, since we want it to kick off and run in the background
+        // while user begins to use app.
+    
+        this.preloadList.loadAll();
     }
 
     async showSingleLayout() {
@@ -160,6 +172,7 @@ export default class TapItController {
     
     enterTitleState() {
         // this.runtime.getSystemSettingsService().showSystemSettings();
+        SoundManagerInstance.playSound(SOUNDS.BG_MUSIC);
         document.onclick = () => {
             document.onclick = null;
             this.switchState(GameState.SkippableInstruction);
