@@ -173,6 +173,7 @@ export default class TapItController {
     }
 
     async enterGameIntroState() {
+        document.getElementById("titleScreen").style.display = "none";
         document.getElementById("instructions").style.display = "none";
         document.getElementById("leaderboard").style.display = "none";
         document.getElementById("game").style.display = "block";
@@ -181,9 +182,44 @@ export default class TapItController {
         this.assetManager = await this.runtime.getAssetManager();
         this.fullScreenRecorder.startRecording();
         this.cameraComponent.startRecording();
-        document.getElementById("button").onclick = () => {
-            this.switchState(GameState.GameLeaderboard);
+        var counter = document.getElementById("button");
+        var count = 0;
+        var score = document.getElementById("score");
+
+        const onclick_handler = () => {
+            count += 1;
+            score.innerHTML = "Score:" + "  "+ count + "";
+        };
+
+        const move_around = () => {
+            var x = Math.floor(Math.random() * 500);
+            var y = Math.floor(Math.random() * 500);
+            counter.style.left = x + "px";
+            counter.style.top = y + "px";
+        };
+
+        counter.onclick = onclick_handler; move_around();
+        var timer = 60;
+
+        var started = true;
+        counter.addEventListener('click', function() {
+            console.log(timer);
+            if (started){
+            var myInterval = window.setInterval(function(){
+            if (timer > 0)
+                timer--;
+                document.getElementById("timer").innerHTML = "Timer: " + timer;
+            if (timer <= 0) {
+                counter.setAttribute("disabled", "");
+                clearInterval(myInterval);
+            }
+            }, 1000);
+            started = false;
         }
+        });
+        // document.getElementById("button").onclick = () => {
+        //     this.switchState(GameState.GameLeaderboard);
+        // }
     }
 
     async enterLeaderboardState() {
