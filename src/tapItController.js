@@ -1,4 +1,4 @@
-import {sleepProg, hideElement, showElement} from './utils'
+import {sleepProg, hide, show} from './utils'
 import { PreloadList, PreloadListLoader } from './libs/Preloader';
 import SoundManagerInstance from './soundManager';
 import {SOUNDS} from "./const";
@@ -48,12 +48,14 @@ export default class TapItController {
 
     async load() {
         this.preloadList.addLoad(() => SoundManagerInstance.loadSound(SOUNDS.BG_MUSIC));
-        this.fullScreenRecorder = await this.runtime.getControlManager().getFullScreenRecorder();
+        this.preloadList.addHttpLoad('./images/splash.jpg');
 
         // don't await this, since we want it to kick off and run in the background
         // while user begins to use app.
-    
         this.preloadList.loadAll();
+
+        this.fullScreenRecorder = await this.runtime.getControlManager().getFullScreenRecorder();
+
     }
 
     async showSingleLayout() {
@@ -180,8 +182,8 @@ export default class TapItController {
     }
 
     enterInstructionsState() {
-        hideElement("titleScreen")
-        showElement("instructions")
+        hide("#titleScreen")
+        show("#instructions")
         document.getElementById("titleScreen").style.display = "none";
         document.getElementById("game").style.display = "none";
         document.getElementById("leaderboard").style.display = "none";
@@ -192,9 +194,9 @@ export default class TapItController {
     }
 
     async enterInroCountdownState() {
-        hideElement("instructions")
+        hide("#instructions")
         await this.startCountDown().then(() => {
-            showElement("game")
+            show("#game")
             const countDown = document.getElementById("game_start_timer");
             console.log("countDown: " + countDown);
         });

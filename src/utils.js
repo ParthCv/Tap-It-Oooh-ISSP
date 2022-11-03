@@ -10,10 +10,10 @@ export function sleepProg(milliseconds) {
     } while (currentDate - date < milliseconds);
 }
 
-export function showElement(name, displayType = "block") {
-    document.getElementById(name).style.display = displayType;
+export function show(name) {
+    document.querySelector(name).classList.add("hidden");
 }
 
-export function hideElement(name) {
-    document.getElementById(name).style.display = "none";
+export function hide(name) {
+    document.querySelector(name).classList.remove("hidden");
 }
