@@ -1,4 +1,4 @@
-import {sleep} from './utils'
+import {sleepProg, hideElement, showElement} from './utils'
 
 const GameState = Object.freeze({
     Boot: 'Boot',
@@ -34,6 +34,7 @@ export default class TapItController {
 
         this.recording = false;
         this.totalScore = 0;
+        this.totalTime = 10;
         this.challengerTotalScore = 0;
         this.challengerScore = null;
     }
@@ -62,10 +63,9 @@ export default class TapItController {
 
     async startCamera() {
         try {
-            this.assetManager = await this.runtime.getAssetManager();
             this.fullScreenRecorder.startRecording();
             this.cameraComponent.startRecording();
-            sleep(10000);
+            sleepProg(10000);
 
             this.screenVideoAsset = await this.fullScreenRecorder.stopRecording();
             this.cameraVideoAsset = await this.cameraComponent.stopRecording();
@@ -107,6 +107,10 @@ export default class TapItController {
                     this.enterInstructionsState();
                     break;
 
+                case GameState.IntroCountdown:
+                    this.enterInroCountdownState();
+                    break;
+
                 case GameState.GameIntro:
                     this.enterGameIntroState();
                     break;
@@ -126,18 +130,62 @@ export default class TapItController {
     }
 
     enterInstructionsState() {
-        document.getElementById("titleScreen").style.display = "none";
-        document.getElementById("instructions").style.display = "block";
+        hideElement("titleScreen")
+        showElement("instructions")
         document.getElementById("start").onclick = () => {
-            this.switchState(GameState.GameIntro);
+            this.switchState(GameState.IntroCountdown);
         }
     }
 
-    async enterGameIntroState() {
-        document.getElementById("instructions").style.display = "none";
-        document.getElementById("game").style.display = "block";
-        await this.showSingleLayout();
-        this.startCamera();
+    async enterInroCountdownState() {
+        hideElement("instructions")
+        await this.startCountDown().then(() => {
+            showElement("game")
+            const countDown = document.getElementById("game_start_timer");
+            console.log("countDown: " + countDown);
+        });
+        await this.showSingleLayout().then(() => {
+            this.switchState(GameState.GameIntro);
+        });
+        
+    }
+
+    
+    async startCountDown() {
+        console.log("In startCountDown");
+        const countDown = document.getElementById("game_start_timer");
+        countDown.innerHTML = "3";
+        console.log("countDown: " + countDown.innerHTML);
+        setTimeout(() => {
+            countDown.innerHTML = "2";
+            console.log("countDown: " + countDown.innerHTML);
+            setTimeout(() => {
+                countDown.innerHTML = "1";
+                console.log("countDown: " + countDown.innerHTML);
+                setTimeout(() => {
+                    countDown.innerHTML = "GO!";
+                    console.log("countDown: " + countDown.innerHTML);
+                    setTimeout(() => {
+                        countDown.innerHTML = "";
+                    }, 1000);
+                }, 1000);
+            }, 1000);
+        }, 1000);
+    }
+    
+    enterGameIntroState() {
+        //this.startCamera();
+        while (this.totalTime > 0) {
+            this.totalTime--;
+            console.log("Time: " + this.totalTime);
+            sleepProg(1000);
+        }
+        const exitCondition = {
+            score: this.totalScore
+        };
+
+        this.runtime.completeModule(exitCondition);
+
     }
 
 }

@@ -1,15 +1,28 @@
 #instructions {
-    display: hidden;
+    display: none;
     align-items: center;
     justify-content: center;
     flex-direction: column;
 }
 
 #game {
-    display: hidden;
+    display: none;
+}
+
+#game_start_timer {
+    position: absolute;
+    margin-top: 30vh;
+    display: flex;
+    justify-content: center;
+    color: #fff;
+    align-items: center;
+    font-size: 200px;
+    font-weight: bold;
+    text-align: center;
 }
 
 #start {
+    flex-direction: column;
     font-family: sans-serif;
     background: #F83;
     padding: 30px;
