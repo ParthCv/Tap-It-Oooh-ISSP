@@ -18,6 +18,8 @@ export default class App {
         this.o3h = o3h;
         this.runtime = o3h.Instance;
 
+        // Change the viewport settings for the module iframe
+        this.runtime.adjustViewport("device-width", "device-height");
 
         LayoutManagerInstance.initSingleton(o3h);
         // ScreenManagerInstance.setAnalyticService(this.runtime.getAnalyticService());

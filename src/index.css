@@ -65,13 +65,13 @@ button {
     flex-direction: column;
 }
 
-#timer{
+/* #timer{
     margin-top: -50px;
-}
+} */
 
 
 #gameplayScreen {
-    background-color: blue;
+
     padding-top: 25vw;
 }
 
@@ -157,7 +157,7 @@ button {
     background-image: url('./images/screens/bg.png');
     background-size: cover;
     background-position: center;
-    background-repeat: no-repeat;
+    background-repeat: no-repeat;0
 }
 
 

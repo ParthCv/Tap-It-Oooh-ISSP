@@ -8,8 +8,13 @@ export default class GameplayScreen extends ScreenBase {
         super(o3h, mainApp);
 
         this.name = consts.SCREENS.GAMEPLAY;
-        this.layoutName = consts.LAYOUTS.HTML_ONLY;
+        this.layoutName = consts.LAYOUTS.FULL_SCREEN_CAMERA;
+
         this.preloadList.addLoad(() => LayoutManagerInstance.createEmptyLayout());
+        this.preloadList.addLoad(async () => {
+            await LayoutManagerInstance.createFullScreenCameraLayout();
+            this.fullscreenRecorder = await this.runtime.getControlManager().getFullScreenRecorder();
+        });
 
         this.hostElement = document.querySelector('#gameplayScreen');
 
@@ -20,10 +25,13 @@ export default class GameplayScreen extends ScreenBase {
     }
 
     async onShowing() {
+
         console.log("game screen");
         this.hostElement.classList.remove('hidden');
 
         let timer = 5;
+
+        this.fullscreenRecorder.startRecording();
 
         const onclick_handler = () => {
             this.score += 1;
