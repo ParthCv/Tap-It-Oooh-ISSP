@@ -14,7 +14,7 @@ export default class ReviewScreen extends ScreenBase {
 
         this.retryButton = document.querySelector('#reviewScreen #review_retry');
         this.retryButton.onclick = () => {
-            this.runtime.getAnalyticService().replay();
+            // this.runtime.getAnalyticService().replay();
             this.mainApp.goToGameplay();
         }
 
