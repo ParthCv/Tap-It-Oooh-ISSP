@@ -5,7 +5,7 @@ import {PreloadListLoader} from "./libs/Preloader";
 import GameplayScreen from "./screens/gameplayScreen";
 import ReviewScreen from "./screens/reviewScreen";
 import AudiencePregameLeaderboard from "./screens/audiencePregameLeaderboard";
-// import ScoreComparisonScreen from "./screens/scoreComparison";
+import ScoreComparisonScreen from "./screens/scoreComparison";
 import LayoutManagerInstance from "./layoutManager";
 import ScreenManagerInstance from "./screenManager";
 import Leaderboard from "./libs/leaderboard";
@@ -31,6 +31,7 @@ export default class App {
         this.tutorialScreen = new TutorialScreen(o3h, this);
 
         this.gameplayScreen = new GameplayScreen(o3h, this);
+        
         this.reviewScreen = new ReviewScreen(o3h, this);
 
         this.isCreatorMode = util.isCreatorMode(o3h);
@@ -144,10 +145,12 @@ export default class App {
         await ScreenManagerInstance.showScreen(SCREENS.GAMEPLAY);
     }
 
-    async leaveGameplay(fullScreenRecording, camRecording, replayData, score){
-        this.fullScreenRecording = fullScreenRecording;
-        this.camRecording = camRecording;
-        this.replayData = replayData;
+    //async leaveGameplay(fullScreenRecording, camRecording, replayData, score){
+    async leaveGameplay(score){
+        // this.fullScreenRecording = fullScreenRecording;
+        // this.camRecording = camRecording;
+        // this.replayData = replayData;
+
         this.score = score;//TODO: decide if we should allow negative scores or not: Math.max(0, score);    // protect against negative scores, which are possible if player is terrible
         this.reviewScreen.setScore(this.score);
 
@@ -160,14 +163,14 @@ export default class App {
     }
 
     async goToReview() {
-        const assetManager = this.runtime.getAssetManager();
-        assetManager.addToOutput(INPUT_OUTPUT_ASSETS.OUTPUT_FULLSCREEN_RECORDING, this.fullScreenRecording);
-        assetManager.addToOutput(INPUT_OUTPUT_ASSETS.OUTPUT_CAMERA, this.camRecording);
-        if (this.isCreatorMode) {
-            assetManager.addToOutput(INPUT_OUTPUT_ASSETS.OUTPUT_REPLAY_DATA, this.replayData);
-        }
+        // const assetManager = this.runtime.getAssetManager();
+        // assetManager.addToOutput(INPUT_OUTPUT_ASSETS.OUTPUT_FULLSCREEN_RECORDING, this.fullScreenRecording);
 
-        await ScreenManagerInstance.showScreen(SCREENS.REVIEW);
+        // if (this.isCreatorMode) {
+        //     assetManager.addToOutput(INPUT_OUTPUT_ASSETS.OUTPUT_REPLAY_DATA, this.replayData);
+        // }
+
+        ScreenManagerInstance.showScreen(SCREENS.REVIEW);
     }
 
     async endModule() {

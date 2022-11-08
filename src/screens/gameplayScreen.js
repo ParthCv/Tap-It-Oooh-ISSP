@@ -10,9 +10,12 @@ export default class GameplayScreen extends ScreenBase {
         this.name = consts.SCREENS.GAMEPLAY;
         this.layoutName = consts.LAYOUTS.FULL_SCREEN_CAMERA;
 
+        this.fullscreenRecorder = null;
+        this.camera = null;
+
+        this.assetManager = this.runtime.getAssetManager();
+
         this.preloadList.addLoad(() => LayoutManagerInstance.createEmptyLayout());
-
-
 
         this.preloadList.addLoad(async () => {
             await LayoutManagerInstance.createFullScreenCameraLayout();
@@ -55,7 +58,9 @@ export default class GameplayScreen extends ScreenBase {
                     document.getElementById("timer").innerHTML = "Timer: 0";
                     endGame = true;
                     clearInterval(timerId);
-                    endGamefunction(score);
+
+                    this.mainApp.leaveGameplay(score);
+                    // await endGamefunction(score);
                 }
             }, 1);
         }         
@@ -71,6 +76,7 @@ export default class GameplayScreen extends ScreenBase {
     }
 
     async finishGame(score) {
+        console.log(this.camera); // undefined
         const camRecording = await this.camera.stopRecording();
         const fullScreenRecording = await this.fullscreenRecorder.stopRecording();
 
