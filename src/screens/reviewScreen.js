@@ -1,6 +1,7 @@
-import {LAYOUTS, SCREENS} from "../const";
+import {LAYOUTS, SCREENS, SOUNDS} from "../const";
 import ScreenBase from "./screenBase";
 import LayoutManagerInstance from "../layoutManager";
+import SoundManagerInstance from "../soundManager";
 
 export default class ReviewScreen extends ScreenBase {
     constructor(o3h, mainApp) {
@@ -14,12 +15,14 @@ export default class ReviewScreen extends ScreenBase {
 
         this.retryButton = document.querySelector('#reviewScreen #review_retry');
         this.retryButton.onclick = () => {
+            SoundManagerInstance.playSound(SOUNDS.SFX_BUTTON_TAP);
             this.runtime.getAnalyticService().replay();
             this.mainApp.goToGameplay();
         }
 
         this.nextButton = document.querySelector('#reviewScreen #review_done');
         this.nextButton.onclick = () => {
+            SoundManagerInstance.playSound(SOUNDS.SFX_BUTTON_TAP);
             this.mainApp.endModule();
         }
     }

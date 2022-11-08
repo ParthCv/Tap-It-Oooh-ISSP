@@ -154,7 +154,7 @@ export default class App {
             this.goToReview();
         }
         else {
-            ScreenManagerInstance.showScreen(SCREENS.SCORE_COMPARE);
+            await ScreenManagerInstance.showScreen(SCREENS.SCORE_COMPARE);
         }
     }
 

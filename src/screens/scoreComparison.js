@@ -1,4 +1,5 @@
-import {LAYOUTS, SCREENS} from "../const";
+import {LAYOUTS, SCREENS, SOUNDS} from "../const";
+import SoundManagerInstance from "../soundManager";
 import ScreenBase from "./screenBase";
 
 export default class ScoreComparisonScreen extends ScreenBase {
@@ -10,6 +11,7 @@ export default class ScoreComparisonScreen extends ScreenBase {
 
         this.hostElement = document.querySelector('#scoreCompareScreen');
         this.hostElement.onclick = () => {
+            SoundManagerInstance.playSound(SOUNDS.SFX_BUTTON_TAP);
             this.mainApp.goToReview();
         }
     }
