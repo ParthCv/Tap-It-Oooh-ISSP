@@ -24,8 +24,17 @@ module.exports = {
             {
                 test: /\.css$/,
                 use: [
-                    "style-loader",
-                    "css-loader"
+                    {
+                        loader: 'style-loader',
+                    },
+                    {
+                        loader: 'css-loader',
+                        options: {
+                            // images in CSS referenced by url() will not be processed by webpack's file-loader,
+                            // it's expected they'll be copied by the copy plugin from src/images
+                            url: false,
+                        }
+                    },
                 ],
             },
             {
@@ -77,7 +86,8 @@ module.exports = {
             patterns: [
                 { from: "o3hmanifest.json", to: "" },
                 { from: "src/images", to: "images" },
-                { from: "src/sounds", to: "sounds" }
+                { from: "src/sounds", to: "sounds" },
+                { from: "src/fonts", to: "fonts" }
             ],
         }),
         new HtmlWebpackPlugin({

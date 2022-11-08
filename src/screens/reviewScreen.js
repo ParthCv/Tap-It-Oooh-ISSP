@@ -1,45 +1,46 @@
-import "./styles/reviewScreen.scss";
+import {LAYOUTS, SCREENS, SOUNDS} from "../const";
 import ScreenBase from "./screenBase";
-
-import { LAYOUTS, SOUNDS } from "../const";
-
 import LayoutManagerInstance from "../layoutManager";
 import SoundManagerInstance from "../soundManager";
 
 export default class ReviewScreen extends ScreenBase {
-    constructor(app) {
-        super("EndScreen", document.querySelector("#reviewScreen"), LAYOUTS.REVIEW_VIDEO, app);
+    constructor(o3h, mainApp) {
+        super(o3h, mainApp);
 
-        document.querySelector("#review_retry").addEventListener("click", () => {
-            this.app.showRecording();
-        });
+        this.name = SCREENS.REVIEW;
+        this.layoutName = LAYOUTS.FULL_SCREEN_CAMERA;
+        this.preloadList.addLoad(async () => { await LayoutManagerInstance.createFullScreenCameraLayout(); });
 
-        document.querySelector("#review_done").addEventListener("click", () => {
-            this.app.exit();
-        });
+        this.hostElement = document.querySelector('#reviewScreen');
 
-        document.querySelectorAll("#reviewScreen button").forEach(button => {
-            button.addEventListener("click", () => {
-                SoundManagerInstance.playSound(SOUNDS.SFX_BUTTON_TAP);
-            });
-        })
+        this.retryButton = document.querySelector('#reviewScreen #review_retry');
+        this.retryButton.onclick = () => {
+            // this.runtime.getAnalyticService().replay();
+            SoundManagerInstance.playSound(SOUNDS.SFX_BUTTON_TAP);
+            this.mainApp.goToGameplay();
+        }
 
-        this.preloadList.addLoad(async () => {
-            const layout = await LayoutManagerInstance.createReviewVideoLayout();
-            this.reviewVideoComponent = layout.getComponent("main");
-        });
+        this.nextButton = document.querySelector('#reviewScreen #review_done');
+        this.nextButton.onclick = () => {
+            SoundManagerInstance.playSound(SOUNDS.SFX_BUTTON_TAP);
+            this.mainApp.endModule();
+        }
+
+        this.settingsService = this.runtime.getSystemSettingsService();
     }
 
-    show() {
-        super.show();
-        // Play the recorded video, loaded in App.showReview()
-        this.reviewVideoComponent.playVideo();
+    setScore(score) {
+        document.querySelector('#reviewScore').innerText = score;
     }
 
-    hide() {
-        // Stop playing the video when this screen is hidden
-        this.reviewVideoComponent.stop();
-
-        super.hide();
+    async show() {
+        await super.show();
+        this.settingsService.showSystemSettings();
     }
+
+    async hide() {
+        await super.hide();
+        this.settingsService.hideSystemSettings();
+    }
+    
 }

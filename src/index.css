@@ -1,0 +1,363 @@
+:root {
+    --green: #57ff2d;
+    --purple-shadow: -.2vh .4vh .5vh #9D549D;
+    --button-margin: 13vh;
+    --leaderboard-red: #F93C3C;
+    --leaderboard-orange: #FF9F2E;
+    --leaderboard-green: #05D501;
+    --leaderboard-blue: #5AA6FF;
+    --leaderboard-purple: #CE41FF;
+}
+
+@font-face {
+    font-family: 'Gotham-UltraItalic';
+    font-style: normal;
+    font-weight: normal;
+    src: url('fonts/Gotham-UltraItalic.otf');
+}
+
+body {
+    margin: 0;
+    font-family: 'Gotham-UltraItalic';
+}
+
+img {
+    image-rendering: optimizeSpeed;
+}
+
+button {
+    background: linear-gradient(91.96deg, #F20CC0 2.82%, #F93C3C 54.18%, #CE41FF 99.49%);
+    font-size: 2.75vh;
+    font-weight: normal;
+    font-family: 'Gotham-UltraItalic';
+    color: #ffffff;
+    display: inline-block;
+    margin: 0 auto;
+    position: fixed;
+    left: 0;
+    right: 0;
+    bottom: var(--button-margin);
+    width: 25vh;
+    padding: 1vh;
+    border-radius: 3vh;
+}
+
+#loadingCover {
+    z-index: 1;
+    position: fixed;
+    width: 100%;
+    height: 100%;
+}
+#loadingCover.hidden {
+    pointer-events: none;
+}
+
+.hidden {
+    display: none;
+}
+
+.container  {
+    color: #fff;
+    font-size: 25px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+}
+
+#timer{
+    margin-top: -50px;
+}
+
+
+#gameplayScreen {
+    
+    padding-top: 25vw;
+}
+
+#gameplayScreen p {
+    color:white;
+    font-size: 3vh;
+}
+
+#game-button {
+    /* position: relative; */
+    /* width: 10vh;
+    font-family: sans-serif;
+    background: #F83;
+    padding: 30px;
+    border-radius: 100px;
+    font-size: 30px;
+    display: inline-block;
+    color: #FFF; */
+    margin-bottom: var(--button-margin);
+    background: url("./images/ring_game_cyan.png");
+    border: none;
+    width: 25vh;
+    height: 25vh;
+    background-repeat: no-repeat;
+    background-size: 100%;
+    /* margin-left: 50%;
+    margin-right: 50%;
+    letter-spacing: 2px;
+    border: 1px solid rgba(0,0,0,.1);
+    outline: none;
+    background: linear-gradient(to bottom, #F64, #F66);
+    box-shadow: 0 10px 30px rgba(255,100,100, .5), 0 20px 100px 10px rgba(255,100,100, .5);
+    transition: all .25s;
+    cursor: pointer;  */
+}
+
+#game-button:focus {
+    outline: none;
+    box-shadow: none;
+  }
+
+
+    
+#button:active {
+    box-shadow: 0 0px 20px rgba(255,100,100, .5);
+    transform: scale(0.9);
+}
+
+#score{
+    margin-top: 60px;
+    /* margin-left: 50%; */
+    /* margin-right: 50%; */
+}
+
+#screens {
+    position: fixed;
+    width: 100%;
+    height: 100%;
+}
+
+.screen {
+    position: absolute;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    right: 0;
+}
+
+#splashScreen {
+    background-image: url('./images/screens/splash.png');
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+}
+
+#splashScreen .continue-button {
+    font-weight: bold;
+    font-size: 3vh;
+    color: white;
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: var(--button-margin);
+    text-align: center;
+    animation-name: pulse;
+    animation-duration: 3s;
+    animation-iteration-count: infinite;
+    -webkit-transition: text-shadow 0.4s linear;
+    transition: text-shadow 0.4s linear;
+}
+
+
+#tutorialScreen {
+    background-image: url('./images/screens/bg.png');
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+}
+
+
+#tutorialScreen p {
+    color:white;
+    font-size: 3vh;
+    color: var(--green);
+    text-shadow: var(--purple-shadow);
+    position: absolute;
+    text-align: center;
+    top: 2vh;
+    width: 100%;
+    /* transform: scale(.7);
+    transition: all 1s; */
+}
+
+#tutorialScreen p.show {
+    transform: scale(1.4);
+    transition: all 1s;
+}
+
+#tutorialScreen button {
+    font-weight: bold;
+    font-size: 3vh;
+    color: pink;
+
+    position: absolute;
+    margin-left: auto;
+    margin-right: auto;
+    left: 0;
+    right: 0;
+    text-align: center;
+
+    bottom: var(--button-margin);
+
+    /* animation-name: pulse;
+    animation-duration: 3s;
+    animation-iteration-count: infinite;
+    -webkit-transition: text-shadow 0.4s linear;
+    transition: text-shadow 0.4s linear; */
+}
+
+
+.stars-background {
+    background-image: url("./images/starrybg.png");
+    background-size: cover;
+    background-position: top;
+    position: fixed;
+    top: 45vh;
+    left: 0;
+    bottom: 0;
+    right: 0;
+}
+
+.leaderboard-container {
+    position: fixed;
+}
+
+#pregameLeaderboard .o3h-leaderboard {
+    margin-top: 38.5vh;
+}
+
+#postgameLeaderboard .o3h-leaderboard {
+    margin-top: 38.5vh;
+}
+
+#scoreCompareScreen .o3h-leaderboard {
+    margin-top: 52vh;
+}
+
+.o3h-leaderboard__list-member {
+    width: 100vw;
+    height: 6vh;
+    margin-bottom: .5vh;
+    display: flex;
+    padding: 0 calc(50vw - 20vh);
+    background-color: green;
+    color: #ffffff;
+    font-family: 'Gotham-UltraItalic';
+    font-weight: bold;
+    text-shadow: var(--purple-shadow);
+    font-size: 2vh;
+    align-items: center;
+    box-sizing: border-box;
+}
+
+.o3h-leaderboard__list-member-rank {
+    width: 4vh;
+    font-size: 3.3vh;
+}
+
+.o3h-leaderboard__list-member-avatar {
+    width: 4vh;
+    height: 4vh;
+    border-radius: 2vh;
+    background-size: cover;
+    background-position: center;
+    margin-right: 1.5vh;
+}
+
+/* this should fill up any remaining space after rank and score widths are rendered */
+.o3h-leaderboard__list-member-name {
+    font-weight: normal;
+    flex: 1;
+    text-shadow: none;
+}
+
+.o3h-leaderboard__list-member-score {
+    justify-content: right;
+}
+
+.o3h-leaderboard__list-member[data-rank="1"] {
+    background-color: var(--leaderboard-red);
+    -webkit-box-shadow: 0px 0px 1vh .5vh var(--leaderboard-red);
+    box-shadow: 0px 0px 1vh .5vh var(--leaderboard-red);
+}
+
+.o3h-leaderboard__list-member[data-rank="2"] {
+    background-color: var(--leaderboard-orange);
+    -webkit-box-shadow: 0px 0px 1vh .5vh var(--leaderboard-orange);
+    box-shadow: 0px 0px 1vh .5vh var(--leaderboard-orange);
+}
+
+.o3h-leaderboard__list-member[data-rank="3"] {
+    background-color: var(--leaderboard-green);
+    -webkit-box-shadow: 0px 0px 1vh .5vh var(--leaderboard-green);
+    box-shadow: 0px 0px 1vh .5vh var(--leaderboard-green);
+}
+
+.o3h-leaderboard__list-member {
+
+}
+
+.o3h-leaderboard__list_also-ran {
+    margin-top: 3.5vh;
+}
+
+.o3h-leaderboard__list_also-ran .o3h-leaderboard__list-member {
+    background-color: var(--leaderboard-purple);
+    -webkit-box-shadow: 0px 0px 1vh .5vh var(--leaderboard-purple);
+    box-shadow: 0px 0px 1vh .5vh var(--leaderboard-purple);
+}
+
+.o3h-leaderboard__list_also-ran .o3h-leaderboard__list-member:first-of-type {
+    background-color: var(--leaderboard-blue);
+    -webkit-box-shadow: 0px 0px 1vh .5vh var(--leaderboard-blue);
+    box-shadow: 0px 0px 1vh .5vh var(--leaderboard-blue);
+}
+
+.o3h-leaderboard__rank-box_content {
+    text-align: center;
+}
+
+.o3h-leaderboard__rank-box_content div {
+    display: inline-block;
+    color: var(--green);
+    text-shadow: var(--purple-shadow);
+    font-size: 7vh;
+}
+
+.o3h-leaderboard__achievements-box_content {
+    text-align: center;
+    position: relative;
+    width: 100vw;
+}
+
+.o3h-leaderboard__achievements-box_content > div {
+    position: absolute;
+    width: 100%;
+    font-size: 4vh;
+    color: var(--green);
+    text-shadow: var(--purple-shadow);
+    height: 20vh;
+    background-image: url(./images/rainbowwave.png);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+#vsScreen .vsWho {
+    color: var(--green);
+    text-shadow: var(--purple-shadow);
+    font-size: 7vh;
+    background-image: url(./images/rainbowwave.png);
+    background-repeat: no-repeat;
+    background-position: center;
+    height: 100vh;
+    display: flex;
+    justify-content: center;
+    flex-direction: column;
+    text-align: center;
+}

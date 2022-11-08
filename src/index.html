@@ -1,89 +1,222 @@
+<!DOCTYPE html>
 <html lang="en">
-    <head>
-        <meta charset="UTF-8">
-        <!-- Use Runtime.adjustViewport() to adjust viewport width and height -->
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="viewport-fit=cover"/>   <!-- Needed when using notch env variables -->
+    <title>Document</title>
+    <!-- <link rel="stylesheet" href="./button.css"> -->
+</head>
+<body>
+    <div id="loadingCover" class="hidden">
 
-        <title>Module Template</title>
-
-        <!-- Font pre-loading -->
-        <link rel="preload" href="./fonts/Ubuntu-Regular.ttf" as="font" type="font/ttf" crossorigin>
-        <link rel="preload" href="./fonts/Ubuntu-Bold.ttf" as="font" type="font/ttf" crossorigin>
-        <link rel="preload" href="./fonts/Bungee-Regular.ttf" as="font" type="font/ttf" crossorigin>
-    </head>
-
-    <body>
-        <div class="screens">
-            <div id="loading" class="screen">
-                <!-- Covers up the screen while things load in underneath -->
-                <!-- This is very important as heavy assets, like videos, should not be pre-cached -->
-                <!-- Only one screen will be shown at any given time -->
-            </div>
-            <div id="splashScreen" class="screen hidden">
-                <h3>Splash Screen</h3>
-
-                <div class="contents">
-                    <h1 class="title popIn hidden">Module Starter</h1>
-                </div>
-
-                <div class="controls">
-                    <img id="tutorialButton" class="hidden" src="./images/icon_help.png">
-                    <button>Start</button>
-                </div>
-            </div>
-            <div id="tutorialScreen" class="screen hidden">
-                <h3>Tutorial Screen</h3>
-
-                <!-- Tutorial text to describe the module starter to a developer (modules aren't this wordy!) -->
-                <div class="contents">
-                    <h4>What can creators do?</h4>
-                    <p>In this module starter, creators can write a message which is shown to their audience, and record a video of their camera.</p>
-                    <p>You'll see these output as assets in the SDK, with the name <b>fullScreenRecording</b> for the video, and <b>replay</b> for the data with the message.</p>
-                    <hr>
-                    <h4>What can audiences do?</h4>
-                    <p>Audiences can then see the message written by the creator, and record a video of their own to send back to the creator.</p>
-                    <p>You'll need to set the creator's output asset <b>replay</b> as an audience input asset with the same name.</p>
-                </div>
-
-                <div class="controls">
-                    <button>Next</button>
-                </div>
-            </div>
-            <div id="experienceScreen" class="screen hidden">
-                <h3>Experience Screen</h3>
-
-                <div class="contents">
-                    <div class="creator">
-                        <p>Write a message to your community</p>
-                        <input type="text" id="message" placeholder="Enter a message">
-                    </div>
-                    <div class="audience">
-                        <p>Here's a message from <b id="creatorName"></b></p>
-                        <h2 class="message"></h2>
-                    </div>
-                </div>
-
-                <div class="controls">
-                    <button>Play</button>
-                </div>
-            </div>
-            <div id="recordingScreen" class="screen hidden">
-                <h3 class="interface">Recording Screen</h3>
-                <div class="backButton interface"></div>
-
-                <div class="contents lower interface">
-                    <p><b>Tap the record button to start screen recording</b></p>
-                </div>
-            </div>
-            <div id="reviewScreen" class="screen hidden">
-                <h3>Review Screen</h3>
-                <div class="contents upper">
-                    <p>Here the player can watch back their recorded video, and then re-take it or post it to the creator.</p>
-                </div>
-                <div class="controls">
-                    <button id="review_retry">Retry</button>
-                    <button id="review_done">Done</button>
-                </div>
+    </div>
+    <div id="screens">
+        <div id="splashScreen" class="screen hidden">
+            <p class="continue-button">Tap to Continue</button>
+        </div>
+        <div id="pregameLeaderboard" class="screen hidden">
+            <div class="stars-background"></div>
+            <div class="leaderboard-container"></div>
+            <button>Next</button>
+        </div>
+        <div id="tutorialScreen" class="screen hidden">
+            <p>Tutorial</p>
+            <button>Next</button>
+        </div>
+        <div id="vsScreen" class="screen hidden">
+            <div class="vsWho">VS</div>
+        </div>
+        <div id="gameplayScreen" class="screen hidden">
+            <p id="timer">Timer: 60</p>
+            <button id="game-button"></button>
+            <p id="score">Score: 0</p>
+        </div>
+        <div id="scoreCompareScreen" class="screen hidden">
+            <div class="stars-background"></div>
+            <div class="leaderboard-container"></div>
+            <button>Next</button>
+        </div>
+        <div id="postgameLeaderboard" class="screen hidden">
+            <div class="stars-background"></div>
+            <div class="leaderboard-container"></div>
+            <button>Next</button>
+        </div>
+        <div id="reviewScreen" class="screen hidden">
+            <div id="reviewScore"></div>
+            <div class="buttons">
+                <button id="review_retry">Retry</button>
+                <button id="review_done">Done</button>
             </div>
         </div>
-    </body>
+        <div id="reactionScreen" class="screen hidden">
+            <button id="reaction_submit" style="left: inherit; right:5vh">Submit</button>
+        </div>
+    </div>
+
+
+    <!-- <script type="module">
+        import * as o3h from "/api/o3h.js";
+        const runtime = o3h.Instance;
+
+        // Global variables
+        let cameraComponent;
+
+        // Module functions
+        async function setupModule() {
+            runtime.adjustViewport("device-width", "device-height");
+            
+            // Camera component configuration
+            const cameraConfig = new o3h.CameraComponentConfig();
+            cameraConfig.resolutionScale = o3h.CameraResolutionScale.Full; // Full resolution
+            cameraConfig.cameraType = o3h.CameraType.FrontFacing;
+            
+            // Creating a full-screen camera layout
+            const componentConfig = {"main": cameraConfig};
+            const layout = await runtime.createLayout("Full Screen", componentConfig);
+            
+            // Make the layout active
+            await layout.show();
+
+            // Get the camera component and set as a global variable
+            cameraComponent = layout.getComponent("main");
+        }
+
+        async function startModule() {
+            // Start recording the camera
+
+            
+            var counter = document.getElementById("button");
+            var count = 0;
+            var score = document.getElementById("score");
+
+            const onclick_handler = () => {
+                count += 1;
+                score.innerHTML = "Score:" + "  "+ count + "";
+            };
+
+            const move_around = () => {
+                var x = Math.floor(Math.random() * 500);
+                var y = Math.floor(Math.random() * 500);
+                counter.style.left = x + "px";
+                counter.style.top = y + "px";
+            };
+
+            counter.onclick = onclick_handler; move_around();
+            var timer = 60;
+
+            var started = true;
+            counter.addEventListener('click', function() {
+                console.log(timer);
+                if (started){
+                var myInterval = window.setInterval(function(){
+                if (timer > 0)
+                    timer--;
+                    document.getElementById("timer").innerHTML = "Timer: " + timer;
+                if (timer <= 0) {
+                    counter.setAttribute("disabled", "");
+                    clearInterval(myInterval);
+                }
+                }, 1000);
+                started = false;
+            }
+            });
+
+            // counter.addEventListener("click", moveHover);
+            // function moveHover(event){
+            //     var x = Math.floor(Math.random() * 500)+1;
+            //     var y = Math.floor(Math.random() * 500)+1;
+            //     counter.style.top = x + "px";
+            //     counter.style.left = y + "px";
+
+            // }
+
+
+            cameraComponent.startRecording();
+            
+            // Start background music
+            const audioManager = runtime.getAudioManager();
+            let test; // global audioclip object
+            audioManager.load("./sounds/620_short3_pulsations_0060_preview.mp3", "mp3", {AutoPlay: false, Volume: 0.5, Loop: true}).then((audio) => {
+                test = audio;
+                console.log(audio);
+                console.log(test);
+                test.play();
+            });
+
+            // mute background music
+            var mute = document.getElementById("mute");
+                var muted = 0;
+                mute.addEventListener("click", function(){
+                    if (muted == 0){
+                        test.muted = true;
+                        muted = 1;
+                    }
+                    else{
+                        test.muted = false;
+                        muted = 0;
+                    }
+            });
+
+            // change background music to track 1
+            var track1 = document.getElementById("track1");
+            track1.addEventListener("click", function(){
+                test.unload();
+                audioManager.load("./sounds/620_short3_pulsations_0060_preview.mp3", "mp3", {AutoPlay: false, Volume: 0.5, Loop: true}).then((audio) => {
+                    test = audio;
+                    console.log(test);
+                    test.play();
+                });
+            });
+            
+            // change background music to track 2
+            var track2 = document.getElementById("track2");
+            track2.addEventListener("click", function(){
+                test.unload();
+                audioManager.load("./sounds/159_short3_on-your-marks_0060_preview.mp3", "mp3", {AutoPlay: false, Volume: 0.5, Loop: true}).then((audio) => {
+                    test = audio;
+                    console.log(test);
+                    test.play();
+                });
+            });
+            console.log("Audio played");
+            
+            // Wait for 10 seconds
+            await wait(60000);
+            
+            // Stop the camera recording and get the video asset
+            const videoAsset = await cameraComponent.stopRecording();
+            
+            // Add the video asset to the module output
+            const assetManager = runtime.getAssetManager();
+            assetManager.addToOutput("recording", videoAsset);
+
+
+            // Complete the module
+            runtime.completeModule({"score": 0});
+        }
+
+        // Setup module then display the module to the player
+        setupModule().then(() => runtime.ready(startModule));
+
+        // Utility functions
+        function wait(milliseconds) {
+            return new Promise(resolve => setTimeout(resolve, milliseconds));
+        }        
+    </script>
+    <br>
+    <br>
+    <br>
+    <br>
+    <div class="main"></div>
+    <div class="container">
+        <span id = "timer" > Timer: 60</span>
+        <button id="button">Click</button>
+        <div id="score">Score: 0</div>
+        <button id = "mute">Mute</button>
+        <button id="track1">Track 1</button>
+        <button id="track2">Track 2</button>
+    </div>
+    <script src="./button.js"></script> -->
+</body>
 </html>
