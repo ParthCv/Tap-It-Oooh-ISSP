@@ -1,6 +1,8 @@
 import * as consts from  "../const";
+import {SOUNDS} from "../const";
 import ScreenBase from "./screenBase";
 import LayoutManagerInstance from "../layoutManager";
+import SoundManagerInstance from "../soundManager";
 
 
 export default class GameplayScreen extends ScreenBase {
@@ -66,6 +68,7 @@ export default class GameplayScreen extends ScreenBase {
             }, 1000);
             started = false;
             }
+            SoundManagerInstance.playSound(SOUNDS.SFX_BUTTON_TAP);
         });
     }
 

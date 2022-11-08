@@ -1,6 +1,7 @@
-import {LAYOUTS, SCREENS} from "../const";
+import {LAYOUTS, SCREENS, SOUNDS} from "../const";
 import ScreenBase from "./screenBase";
 import LayoutManagerInstance from "../layoutManager";
+import SoundManagerInstance from "../soundManager";
 
 export default class AudiencePregameLeaderboard extends ScreenBase {
     constructor(o3h, mainApp) {
@@ -18,6 +19,7 @@ export default class AudiencePregameLeaderboard extends ScreenBase {
         this.hostElement = document.querySelector('#pregameLeaderboard');
         this.nextButton = document.querySelector('#pregameLeaderboard button');
         this.nextButton.onclick = () => {
+            SoundManagerInstance.playSound(SOUNDS.SFX_BUTTON_TAP);
             this.mainApp.goToTutorial();
         }
     }
