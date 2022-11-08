@@ -91,6 +91,12 @@ button {
     display: inline-block;
     color: #FFF; */
     margin-bottom: var(--button-margin);
+    background: url("./images/ring_game_cyan.png");
+    border: none;
+    width: 25vh;
+    height: 25vh;
+    background-repeat: no-repeat;
+    background-size: 100%;
     /* margin-left: 50%;
     margin-right: 50%;
     letter-spacing: 2px;
@@ -101,6 +107,11 @@ button {
     transition: all .25s;
     cursor: pointer;  */
 }
+
+#game-button:focus {
+    outline: none;
+    box-shadow: none;
+  }
 
 
     
