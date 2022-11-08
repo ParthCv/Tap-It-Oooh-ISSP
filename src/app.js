@@ -8,11 +8,35 @@ import AudiencePregameLeaderboard from "./screens/audiencePregameLeaderboard";
 // import ScoreComparisonScreen from "./screens/scoreComparison";
 import LayoutManagerInstance from "./layoutManager";
 import ScreenManagerInstance from "./screenManager";
-import Leaderboard from "./libs/leaderboard";
+// import LeaderboardData from "./libs/leaderboard";
 import SoundManagerInstance from './soundManager';
 import VsScreen from "./screens/vsScreen";
 import * as util from "./util";
+import { ACHIEVEMENT_TYPE, LeaderboardData, MockO3H } from './libs/leaderboard';
 
+//create a new testa data for Mock03H class
+const mockUser = {
+    Name: 'testuser',
+    AvatarImageUrl: 'http://placekitten.com/256/256',
+    Level: 50,
+    Type: 0, // 0 for audience, 1 for host
+};
+
+const entries = [];
+for (let i = 1; i <= 15; i++){
+entries.push({
+    Rank: i,
+    User: {
+    Name: `player${i}`,
+    AvatarImageUrl: 'http://placekitten.com/256/256',
+    Level: 50,
+    Type: 0,
+    },
+    Score: (16 - i) * 100,
+    IsHost: false,
+});
+}
+const mockO3H = new MockO3H(mockUser, entries);
 export default class App {
     constructor(o3h) {
         this.o3h = o3h;
@@ -25,7 +49,9 @@ export default class App {
         // ScreenManagerInstance.setAnalyticService(this.runtime.getAnalyticService());
 
         this.score = 0;
-        this.leaderboard = new Leaderboard(o3h);
+        const leaderboard = new LeaderboardData();
+        // this.leaderboard = new LeaderboardData();
+
 
         this.splashScreen = new SplashScreen(o3h, this);
         this.tutorialScreen = new TutorialScreen(o3h, this);
@@ -38,7 +64,7 @@ export default class App {
 
         // these 2 screens only happen in audience mode
         if (this.isAudienceMode){
-            this.pregameLeaderboardScreen = new AudiencePregameLeaderboard(o3h, this);
+            this.pregameLeaderboardScreen = new AudiencePregameLeaderboard(mockO3H, this);
             this.vsScreen = new VsScreen(o3h, this);
             // this.scoreCompareScreen = new ScoreComparisonScreen(o3h, this);
         }

@@ -1,1336 +1,447 @@
-/* eslint no-underscore-dangle: 0 */
+/* eslint-disable no-unused-vars */
+const PrivateSymbol = Symbol('Private');
 
-/* eslint-disable import/no-unresolved */
-
-
-const PrivateSymbol = Symbol('private');
-
-// Un-modulized version of Liike tween library, copied and modified under MIT license from https://github.com/LiikeJS/Liike
-const easeInBy = power => t => Math.pow(t, power);
-const easeOutBy = power => t => 1 - Math.abs(Math.pow(t - 1, power));
-const easeInOutBy = power => t => t < 0.5 ? easeInBy(power)(t * 2) / 2 : easeOutBy(power)(t * 2 - 1) / 2 + 0.5;
-
-const linear = t => t;
-const quadIn = easeInBy(2);
-const quadOut = easeOutBy(2);
-const quadInOut = easeInOutBy(2);
-const cubicIn = easeInBy(3);
-const cubicOut = easeOutBy(3);
-const cubicInOut = easeInOutBy(3);
-const quartIn = easeInBy(4);
-const quartOut = easeOutBy(4);
-const quartInOut = easeInOutBy(4);
-const quintIn = easeInBy(5);
-const quintOut = easeOutBy(5);
-const quintInOut = easeInOutBy(5);
-const sineIn = t => 1 + Math.sin(Math.PI / 2 * t - Math.PI / 2);
-const sineOut = t => Math.sin(Math.PI / 2 * t);
-const sineInOut = t => (1 + Math.sin(Math.PI * t - Math.PI / 2)) / 2;
-const bounceOut = t => {
-    const s = 7.5625;
-    const p = 2.75;
-
-    if (t < 1 / p) {
-        return s * t * t;
-    }
-    if (t < 2 / p) {
-        t -= 1.5 / p;
-        return s * t * t + 0.75;
-    }
-    if (t < 2.5 / p) {
-        t -= 2.25 / p;
-        return s * t * t + 0.9375;
-    }
-    t -= 2.625 / p;
-    return s * t * t + 0.984375;
+module.exports.ACHIEVEMENT_TYPE = {
+    NEW_PERSONAL_BEST: 0,
+    BEAT_CREATOR: 1,
+    LOCAL_HIGH_SCORE: 2,
+    GLOBAL_HIGH_SCORE: 3
 };
-const bounceIn = t => 1 - bounceOut(1 - t);
-const bounceInOut = t => t < 0.5 ? bounceIn(t * 2) * 0.5 : bounceOut(t * 2 - 1) * 0.5 + 0.5;
-
-class Tween {
-    constructor (target, handler, settings) {
-        const {
-            start,
-            end,
-            from,
-            to,
-            easing,
-            onstart,
-            onprogress,
-            onend
-        } = settings;
-
-        this.target = target;
-        this.handler = handler;
-
-        this.start = start;
-        this.end = end;
-
-        this.easing = easing;
-
-        this.from = from;
-        this.to = to;
-        this.keys = [];
-
-        this.onstart = onstart;
-        this.onprogress = onprogress;
-        this.onend = onend;
-
-        this.running = false;
-
-        this.store = target.__liike || (target.__liike = {});
-    }
-    init () {
-        const { from, to, keys } = this;
-
-        for (const key in to) {
-            if (!(key in from)) {
-                from[key] = this.store[key] || 0;
-            }
-            keys.push(key);
-        }
-
-        for (const key in from) {
-            if (!(key in to)) {
-                to[key] = this.store[key] || 0;
-                keys.push(key);
-            }
-        }
-    }
-    tick (t) {
-        const { keys, from, to, easing } = this;
-
-        const e = easing(t);
-
-        for (let i = 0; i < keys.length; i++) {
-            const key = keys[i];
-
-            this.store[key] = from[key] + (to[key] - from[key]) * e;
-        }
-
-        this.handler(this.target, this.store);
-    }
-}
-
-const tweens = [];
-const jobs = [];
-const nullFunc = () => {};
-let ticking = 0;
-
-const tick = (now) => {
-    while (jobs.length) {
-        const job = jobs.shift();
-
-        job(now);
-    }
-
-    for (let i = 0; i < tweens.length; i++) {
-        const tween = tweens[i];
-
-        if (now < tween.start) {
-            // not yet started
-            continue;
-        }
-
-        if (!tween.running) {
-            tween.running = true;
-            tween.init();
-            tween.onstart(tween.target);
-        }
-
-        const t = (now - tween.start) / (tween.end - tween.start);
-
-        tween.tick((t < 1) ? t : 1);
-        tween.onprogress(tween.target, t);
-
-        if (now > tween.end) {
-            tween.onend(tween.target);
-            tweens.splice(i--, 1);
-        }
-    }
-
-    if (jobs.length || tweens.length) {
-        ticking = window.requestAnimationFrame(tick);
-    } else {
-        ticking = 0;
-    }
-};
-
-const addTween = (handler) => {
-    return (target, settings) => {
-        const {
-            delay = 0,
-            duration = 0,
-            from = {},
-            to = {},
-            easing = linear,
-            onprogress = nullFunc,
-            onstart = nullFunc,
-            onend = nullFunc
-        } = settings;
-
-        jobs.push((now) => {
-            const tween = new Tween(target, handler, {
-                start: now + delay,
-                end: now + delay + duration,
-                from,
-                to,
-                easing: easing,
-                onstart,
-                onprogress,
-                onend
-            });
-
-            tweens.push(tween);
-        });
-        if (!ticking) {
-            ticking = window.requestAnimationFrame(tick);
-        }
-    };
-};
-
-const tweenTopOpacity =
-    addTween((target, data) => {
-        const { top = 0, opacity = 1 } = data;
-
-        target.style.top = `${top.toFixed(2)}vh`;
-        target.style.opacity = opacity.toFixed(2);
-    });
-
-const tweenMarginTopOpacity =
-    addTween((target, data) => {
-        const { marginTop = 0, opacity = 1 } = data;
-
-        target.style.marginTop = `${marginTop.toFixed(2)}vh`;
-        target.style.opacity = opacity.toFixed(2);
-    });
-
-const tweenScale =
-    addTween((target, data) => {
-        const { x = 1, y = 1 } = data;
-
-        target.style.transform = `scale(${x.toFixed(1)}%, ${y.toFixed(1)}%)`;
-    });
-
-const tweenOpacity =
-    addTween((target, data) => {
-        const { opacity = 1 } = data;
-
-        target.style.opacity = opacity.toFixed(2);
-    });
-
-const showAchievement = async (element, fadeInTime, fadeOutTime, hangTime, moveDistance) => {
-    return new Promise((resolve) => {
-        tweenTopOpacity(element, {
-            duration: fadeInTime,
-            easing: quadOut,
-            from: {
-                top: moveDistance,
-                opacity: 0
-            },
-            to: {
-                top: 0,
-                opacity: 1
-            },
-            onend: (target) => {
-                tweenTopOpacity(element, {
-                    delay: fadeInTime + hangTime,
-                    duration: fadeOutTime,
-                    easing: quadIn,
-                    from: {
-                        top: 0,
-                        opacity: 1
-                    },
-                    to: {
-                        top: 0 - moveDistance,
-                        opacity: 0
-                    },
-                    onend: (target) => { resolve(); }
-                });
-            }
-        });
-    });
-}
-
-/*
-const showScore = async(element, fadeInTime, fadeOutTime, hangTime, moveDistance) => {
-    return new Promise((resolve) => {
-        tweenMarginTopOpacity(element, {
-            duration: fadeInTime,
-            easing: quadOut,
-            from: {
-                marginTop: moveDistance,
-                opacity: 0
-            },
-            to: {
-                marginTop: 0,
-                opacity: 1
-            },
-            onend: (target) => {
-                tweenMarginTopOpacity(element, {
-                    duration: this.timings.fadeOut,
-                    easing: quadIn,
-                    from: {
-                        top: 0,
-                        opacity: 1
-                    },
-                    to: {
-                        top: 0 - moveDistance,
-                        opacity: 0
-                    },
-                    onend: (target) => {
-                        if (!this[PrivateSymbol].haveDismissedAchievements) {
-                            this[PrivateSymbol].dismissAchievements();
-                        }
-                    }
-                });
-            }
-        });
-    });
-}*/
-
 
 /**
- * Class that assists in creating a leaderboard component.
- * <br/>
- * Class takes an o3h module, and can display the leaderboard as many times as desired.
+ * @typedef {Object} UserInformation - <module:o3h.UserDataService.UserInformation>
  */
-export default class Leaderboard {
+
+/**
+ * @typedef {Object} LeaderboardEntryDisplay - a MODIFIED version of <module:o3h.UserDataService.LeaderboardEntry> for display
+ * @property {number} Score - the player's current leaderboard score
+ * @property {number} Rank - the player's current leadaerboard rank
+ * @property {UserInformation} User - the player's information
+ * @property {bool} IsEmphasized - true if this leaderboard entry should be visually emphasized when displayed
+ * @property {bool} IsHost - true if this leaderboard entry is the Host's ORIGINAL score. Should be displayed with a "HOST" label on the profile icon
+ * @property {bool} IsHostReplay - true if this leaderboard entry is the Host's REPLAYED score. Should be displayed with a "HOST REPLAY" label on the profile icon
+ */
+
+/**
+ * Class that assists in getting the data needed to render a leaderboard.
+ */
+module.exports.LeaderboardData = class LeaderboardData {
     /**
-     * Constructor. Loads needed data, but doesn't render the leaderboard
-     *
-     * @param {o3h} o3h - The o3h api module
+     * Constructor.
      */
-    constructor(o3h) {
-        this.o3h = o3h;
+    constructor() {
         this[PrivateSymbol] = {};
+        this[PrivateSymbol].initialized = false;
+        this[PrivateSymbol].didAchieveNewGlobalRecord = false;
+        this[PrivateSymbol].didAchieveNewLocalRecord = false;
+        this[PrivateSymbol].didAchieveBeatCreator = false;
+        this[PrivateSymbol].didAchieveNewPersonalBest = false;
 
-        this[PrivateSymbol].currUserInfoPromise = o3h.Instance.getUserDataService().getActiveUserInformation();
-        this[PrivateSymbol].leaderboardDataPromise = o3h.Instance.getUserDataService().getLeaderboard();
+        // creates a bunch of functions/methods on this[PrivateSymbol]
+        this.addPrivateFunctions();
+    }
 
-        this.timings = {
-            fadeIn: 500,
-            showAchievements: 1500,
-            fadeOut: 200,
-            displayRank: 5000
-        }
+    /**
+     * Needed to set up the leaderboard data
+     * @param o3hRuntime
+     * @return {Promise<void>} A promise that resolves when the data is loaded, and the leaderboard data is ready to use.
+     */
+    async initialize(o3hRuntime) {
+        this[PrivateSymbol].runtime = o3hRuntime;
+        this[PrivateSymbol].userDataPromise = o3hRuntime.getUserDataService().getActiveUserInformation();
 
-        // 1/12 and 1/8 of the screen, but in VH units
-        this.smallMoveDistance = 100 / 12;
-        this.largeMoveDistance = 100 / 8;
+        const leaderboardPromise = o3hRuntime.getUserDataService().getLeaderboard();
+        await Promise.all([leaderboardPromise, this[PrivateSymbol].userDataPromise]);
+        this[PrivateSymbol].updateData(await leaderboardPromise, await this[PrivateSymbol].userDataPromise);
+        this[PrivateSymbol].initialized = true;
+    }
 
-        // gsap seems to be having issues animating marginTop (we could run a plugin, but that would increase footprint)
-        // so instead of animating margin-top, we'll just animate the whole margin
-        this.tweenProps = {
-            noMargin: 0,
-            smallAppearMargin: this.smallMoveDistance,
-            smallDisappearMargin: -1 * this.smallMoveDistance,
-            largeAppearMargin: this.largeMoveDistance,
-            largeDisappearMargin: -1 * this.largeMoveDistance
-        }
+    /**
+     * Updates the leaderboard with the user's score from gameplay, allowing you to get updated data from
+     * getAllEntries, getPodiumEntries, etc, and call getBestAchievement.
+     * @param {number} score the player's score from this round
+     * @param {ReplayDataAsset} replayData a ReplayDataAsset, if your module needs to do any sort of score validation
+     * @return {Promise<void>} A promise that resolves when the leaderboard data has been updated.
+     */
+    async addScore(score, replayData = null) {
+        this[PrivateSymbol].checkInitialized();
 
-        this[PrivateSymbol].styleConfig = {
-            supportedAspects: {
-                tallest: 0.463,
-                shortest: 0.562
-            },
+        // should already be resolved
+        const activeUser = await this[PrivateSymbol].userDataPromise;
 
-            leaderboard: {
-                font: 'Arial',
-                size: 2,
-                color: "#ffffff"
-            },
+        const oldPlayerEntry = this[PrivateSymbol].localEntries.find((e) => e.IsHost !== true && e.User.Name === activeUser.Name);
+        const oldLocalLead = this[PrivateSymbol].localEntries.length > 0 ? this[PrivateSymbol].localEntries[0] : { Score: Number.NEGATIVE_INFINITY };
+        const oldGlobalLead = this[PrivateSymbol].globalEntries.length > 0 ? this[PrivateSymbol].globalEntries[0] : { Score: Number.NEGATIVE_INFINITY };
+        const creatorEntry = this[PrivateSymbol].localEntries.find((e) => e.IsHost === true);
 
-            listMember: {
-                aspectRatio: 5,
-                backgroundImageUrl: 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAfQAAABkCAYAAABwx8J9AAAEOElEQVR4nO3cwW0UMRSAYYNSA6IAaIMGuHOnMu7caYA2oABEEyAgAgLezeyMx37P/r5btIqUjO33Zy1ln5RSvpV7z56/KABADl+/fP79c979iPi7959+fvH61ZP/foEPH79ZVgAY7Fqj3755We5qL/xN5AGgrz3tvbv6qsgDwKlaNfXRoNeIPADc7sxW7gp6jcgDwB+9G9gs6DUiD8AKIrTt1KDXiDwAmUVtVveg14g8ABFlalGIoNeIPAA9ZW9M2KDXbI18EXoArpjxDWKqoNdcWgDv5gEoC/UgfdAvcWUPsJbVb2ynDXqNyAPMwez+31JBrxF5gNjM5G2WD3qNyAOMYdbuJ+gbiTxAW2ZoW4J+gMgDbGM2nk/QGxN5YHVm3hiC3oHIA7Myy+IQ9EFEHsjGjIpN0AMReSAKsycfQQ9O5IGzmSlzEPSERB7Yy6yYl6BPQuSBf5kBaxH0iYk8rMPZRtAXI/KQnzNLjaAj8hCYs8hWgk6VyEN/zhhHCDqbiTy04+zQmqBzyNbIF8OKhYk3PQg6zV0aVIYaK7DPGUXQ6caVPbOxf4lE0BlK5MnCviQ6QScckWc0+42MBJ0URJ6z2EfMQtBJS+S5lf3BzASdqYg8xb9OsihBZ3oiPzdrCb8IOksS+ZysEVwm6HBP5GPx7OE2gg5XiHwfnikcJ+hwI5E/xrOCcwg6NCDydZ4B9CPocJLVIi/eMJagQ0ezRF68IR5Bh8GiR168IQdBh4BGRV68IS9BhyRaR168YS6CDoltjXyNeMNcnlpPWNPW8AM5eIcOiR29NnftDvMQdEjijPj6QByYh6BDQCOjKvKQk6DDYBliKfIQn6BDRzNFUOQhFkGHk6wYN5GHcQQdGhCty0Qe+hB0uJEYHSfy0J6gwxUi04/IwzGCDvfEIx6Rh+0EnSWJQl4iD3WCztQufV65YT8XkQdBZyIGOH8TeVYj6KRkMLOHyDMzQSc8A5cziTyzEHRCMUiJQOTJSNAZxoAkE5EnOkGnC4OPGYk8kQg6zRlorGxr5ItzQWOCziHiDY+7dCacH1oSdDYzfKAtV/a0JOhUGSowhsizl6BjWEBwIs8Wgr4YQwDmIPL8S9An5nDDWkR+bYI+CYcWqBH5dQh6Qg4jcITIz0nQg3PIgB5EPj9BD8ThASIR+VwEfRCHAshI5OMS9A5sdmBmIh+DoDdmEwOI/AiCfoDNCbCdyJ9L0Dey6QDaE/l2BL3CZgIYR+T3WT7oNglAfCL/uGWCXlv4It4AaYn8Q1MG3V9tAGtaOfLpgy7eAFyzNfIleT9SBV28AWjhUjsydyZs0MUbgN4yX9mHCLp4AxBVlsh3D7p4A5BdxMifGnTxBmAVoyPfLOjiDQAP9Yz8rqCLNwDsc1bkHw26eAPAuVpE/kHQxRsAYrg18j9e+f0dz56/sIwAkMjXL59LKaV8B1YOOlr28fROAAAAAElFTkSuQmCC',
-                backgroundImageUrlFirst: 'inherit',
-                backgroundImageUrlSecond: 'inherit',
-                backgroundImageUrlThird: 'inherit',
+        const leaderboard = await this[PrivateSymbol].runtime.getUserDataService().addToLeaderboard({ score, replayData });
 
-                rank: {
-                    font: 'inherit',
-                    size: 'inherit',
-                    color: 'inherit'
-                },
+        this[PrivateSymbol].didAchieveNewGlobalRecord = score > oldGlobalLead.Score;
+        this[PrivateSymbol].didAchieveNewLocalRecord = score > oldLocalLead.Score;
+        this[PrivateSymbol].didAchieveBeatCreator = creatorEntry !== undefined && score > creatorEntry.Score;
+        this[PrivateSymbol].didAchieveNewPersonalBest = oldPlayerEntry !== undefined && score > oldPlayerEntry.Score;
 
-                name: {
-                    font: 'inherit',
-                    size: 'inherit',
-                    color: 'inherit'
-                },
+        await this[PrivateSymbol].updateData(leaderboard, activeUser);
+    }
 
-                score: {
-                    font: 'inherit',
-                    size: 'inherit',
-                    color: 'inherit'
-                },
-
-                points: {
-                    font: 'inherit',
-                    size: 'inherit',
-                    color: 'inherit'
-                },
-            },
-
-            announcement: {
-                title: {
-                    color: 'inherit',
-                    size: 'inherit',
-                    font: 'inherit'
-                },
-                score: {
-                    color: 'inherit',
-                    size: 'inherit',
-                    font: 'inherit'
-                }
-            },
-
-            rankSection: {
-                topPositionPercent: 35
-            },
-
-            listSection: {
-                topPositionPercent: 35
+    addPrivateFunctions() {
+        this[PrivateSymbol].checkInitialized = () => {
+            if (!this[PrivateSymbol].initialized) {
+                throw new Error('Must await initialize() before using LeaderboardData!');
             }
         };
 
-        this[PrivateSymbol].rankedUp = false;
-        this[PrivateSymbol].beatCreatorForFirstTime = false;
-        this[PrivateSymbol].haveDismissedAchievements = false;
+        this[PrivateSymbol].updateData = (leaderboard, activeUser) => {
+            this[PrivateSymbol].localEntries = leaderboard.Entries;
+            this[PrivateSymbol].globalEntries = leaderboard.GlobalEntries;
+            this[PrivateSymbol].activeUser = activeUser;
 
-        this[PrivateSymbol].showLeaderboardWhenLoaded = async (hostElement, isPreGame, playerScore = undefined) => {
-            hostElement.innerHTML = '';
-            hostElement = this[PrivateSymbol].createElementWithParent('div', hostElement, ['o3h-leaderboard'], 'o3h-leaderboard');
+            // Need to set hostEntry before decorateLocalEntries(), otherwise IsHostReplay property will not be set correctly.
+            // NOTE: there is a infinitesimal chance that something goes wrong and hostEntry will be set to null.
+            this[PrivateSymbol].hostEntry = this[PrivateSymbol].localEntries.find((e) => (e.IsHost === true || e.IsOwner === true));
 
-            // things will go awry quickly if we try to show this in creator mode
-            if (this.o3h.Instance.playType === this.o3h.PlayType.Creator) {
-                return;
-            }
-
-            try {
-                const userAndLeaderboard = await Promise.all([this[PrivateSymbol].currUserInfoPromise, this[PrivateSymbol].leaderboardDataPromise]);
-                const currUserInfo = userAndLeaderboard[0];
-
-                // since we'll be modifying the entries, and we want to be able to reuse the leaderboard,
-                // create a deep copy
-                const entries = JSON.parse(JSON.stringify(userAndLeaderboard[1].Entries));
-                const creatorEntry = entries.find((e) => e.IsOwner);
-
-                if (isPreGame) {
-                    await this[PrivateSymbol].createPregameLeaderBoard(currUserInfo, entries, creatorEntry, hostElement);
-                } else {
-                    await this[PrivateSymbol].createPostGameLeaderBoard(currUserInfo, entries, creatorEntry, hostElement, playerScore);
-                }
-            } catch (e) {
-                /* eslint-disable no-console */
-                console.log('error creating pregame leaderboard', e);
-            }
+            this[PrivateSymbol].decorateLocalEntries(this[PrivateSymbol].localEntries);
         };
 
-        this[PrivateSymbol].createPregameLeaderBoard = (userInfo, entries, creatorEntry, hostElement) => {
-            const PODIUM_SIZE = 3;
-
-            const listSection = this[PrivateSymbol].createElementWithParent('div', hostElement, ['o3h-leaderboard__list']);
-            const podiumSection = this[PrivateSymbol].createElementWithParent('div', listSection, ['o3h-leaderboard__list_podium']);
-            const nonPodiumSection = this[PrivateSymbol].createElementWithParent('div', listSection, ['o3h-leaderboard__list_also-ran']);
-
-            const podiumEntries = entries.slice(0, PODIUM_SIZE);
-            this[PrivateSymbol].renderListOfEntries(podiumEntries, podiumSection, userInfo.Name);
-
-            // non-podium list will only show:
-            //      1) the creator, if they have a score, and the score isn't in top 3. Some games may not have a creator score
-            //      2) the player.  If the player has no score yet, we'll show them anyway with a hyphen in place of their rank and score.
-            // We will end up with 1, and at most 2 entries here.
-            const nonPodiumEntries = [];
-            const playerEntry = entries.find((e) => e.User.Name.toLowerCase() === userInfo.Name.toLowerCase());
-
-            // if creator not in top 3, but has a score, add to non-podium
-            if (creatorEntry && creatorEntry.Rank > PODIUM_SIZE) {
-                nonPodiumEntries.push(creatorEntry);
+        this[PrivateSymbol].decorateLocalEntries = (localEntries) => {
+            // add isHost, IsHostReplay, and isEmphasized properties
+            let hostEntryName = false;
+            if (this[PrivateSymbol].hostEntry !== null && this[PrivateSymbol].hostEntry !== undefined) {
+                hostEntryName = this[PrivateSymbol].hostEntry.User.Name;
             }
 
-            // if user has an entry, insert that too
-            if (playerEntry !== undefined) {
-                if (playerEntry.Rank > PODIUM_SIZE) {
-                    nonPodiumEntries.push(playerEntry);
+            // filter through entries
+            localEntries.forEach((e) => {
+                // to match design doc's, we're going to be using IsHost, and scrubbing out IsOwner, if set
+                // note: this may be the second pass on this data, so IsHost may already be set
+                e.IsHost = (e.IsOwner === true || e.IsHost === true);
+                delete e.IsOwner;
 
-                    // we blindly tacked the player entry onto the end.  If we should've put it first, reverse the order
-                    if (nonPodiumEntries.length === 2 && nonPodiumEntries[1].Rank < nonPodiumEntries[0].Rank) {
-                        nonPodiumEntries.reverse();
-                    }
-                }
-            } else {
-                // need to push an entry for the user with dashes in place of rank and score
-                nonPodiumEntries.push({
-                    Rank: '-',
-                    Score: '-',
-                    IsOwner: false,
-                    User: { Name: userInfo.Name, AvatarImageUrl: userInfo.AvatarImageUrl },
-                });
-            }
+                // check if it's a host entry, and not the original host score
+                e.IsHostReplay = (e.User.Name === hostEntryName && e.IsHost !== true);
 
-            this[PrivateSymbol].renderListOfEntries(nonPodiumEntries, nonPodiumSection, userInfo.Name);
-        };
+                // Always emphasize the active player
+                e.IsEmphasized = (e.User.Name === this[PrivateSymbol].activeUser.Name && e.IsHost !== true);
 
-        this[PrivateSymbol].renderListOfEntries = (entries, hostElement, playerName = '') => {
-            entries.forEach((entry) => {
-                this[PrivateSymbol].buildListItem(hostElement, entry, [], entry.User.Name.toLowerCase() === playerName.toLowerCase());
+                // TODO: FUTURE-FEATURE? Only emphasize active player if the get onto the leaderboard
+                // e.IsEmphasized = (e.User.Name === this[PrivateSymbol].activeUser.Name && e.IsHost !== true && this[PrivateSymbol].didAchieveNewPersonalBest);
             });
         };
 
-        this[PrivateSymbol].createPostGameLeaderBoard = async (userInfo, entries, creatorEntry, hostElement, playerScore) => {
-            this[PrivateSymbol].haveDismissedAchievements = false;
-            this[PrivateSymbol].creatorEntry = creatorEntry;
+        this[PrivateSymbol].getCreatorPlayerEntries = (showEvenIfInTop3 = false) => {
+            let npe = [];
+            const { hostEntry } = this[PrivateSymbol];
 
-            this[PrivateSymbol].rankedUp = false;
-            this[PrivateSymbol].oldPlayerEntry = entries.find((e) => e.User.Name.toLowerCase() === userInfo.Name.toLowerCase());
+            const playerEntry = this[PrivateSymbol].localEntries.find((e) => (e.User.Name === this[PrivateSymbol].activeUser.Name && e.IsHost !== true)); // TODO: test across all use cases
 
-            this[PrivateSymbol].newPlayerEntry = this[PrivateSymbol].insertAudienceIntoLeaderboard(entries, userInfo, playerScore);
-            if (this[PrivateSymbol].newPlayerEntry === false) {
-                throw new Error('could not create player entry in leaderboard');
+            let hostRank = Number.MAX_VALUE;
+
+            if (hostEntry && (hostEntry.Rank > 3 || showEvenIfInTop3)) {
+                npe.push(hostEntry);
+                hostRank = hostEntry.Rank;
             }
 
-            const achievements = [];
-            if (this[PrivateSymbol].oldPlayerEntry !== undefined && playerScore > this[PrivateSymbol].oldPlayerEntry.Score) {
-                achievements.push('New Personal Best');
+            if (playerEntry) {
+                if ((playerEntry.Rank > 3 || showEvenIfInTop3)) {
+                    npe.push(playerEntry);
 
-                if (this[PrivateSymbol].newPlayerEntry.Rank === 1) {
-                    achievements.push('New Highscore');
+                    if (playerEntry.Rank < hostRank) {
+                        npe = npe.reverse();
+                    }
                 }
             }
-
-            // MUSTFIX: how do we handle player.score === creator.score?  Is that beating them?
-            // if creator has a score, and this is the first time we are getting higher than that score, beat creator
-            if (creatorEntry !== undefined && this[PrivateSymbol].newPlayerEntry.Score > creatorEntry.Score
-                && (this[PrivateSymbol].oldPlayerEntry === undefined || this[PrivateSymbol].oldPlayerEntry.Score <= creatorEntry.Score)) {
-                achievements.push(`Beat ${creatorEntry.User.Name}`);
-                this[PrivateSymbol].beatCreatorForFirstTime = true;
-            }
-
-            this[PrivateSymbol].rankedUp = this[PrivateSymbol].oldPlayerEntry !== undefined
-                && this[PrivateSymbol].newPlayerEntry.Rank < this[PrivateSymbol].oldPlayerEntry.Rank;
-
-            const clickCatcher = this[PrivateSymbol].createElementWithParent('div', hostElement, ['o3h-leaderboard__click-catcher']);
-            clickCatcher.addEventListener('click', this[PrivateSymbol].handleDismissClick);
-            clickCatcher.addEventListener('touchend', this[PrivateSymbol].handleDismissClick);
-
-            // make rank dialog
-            this[PrivateSymbol].createRankSection(hostElement, this[PrivateSymbol].newPlayerEntry.Rank, this[PrivateSymbol].rankedUp);
-            document.getElementById('rankAnnouncement').style.opacity = 0;
-            document.getElementById('rankDisplay').style.opacity = 0;
-
-            // if have achievement, cycle through list of them, animating into place
-            if (achievements.length > 0) {
-                this[PrivateSymbol].createAchievementsSection(hostElement, achievements, this[PrivateSymbol].newPlayerEntry.Score);
-
-                // const i in achievements is more concise, but eslint
-                for (let i = 0; i < achievements.length; i++) {
-                    const ach = document.getElementById(`achievement${i}`);
-                    ach.style.opacity = '0';
-
-                    await showAchievement(ach, this.timings.fadeIn, this.timings.fadeOut,
-                        this.timings.showAchievements, this.smallMoveDistance);
+            else {
+                // no current player entry, need to add an entry with blanked out rank and score
+                let hostEntryName = '';
+                if (this[PrivateSymbol].hostEntry !== null && this[PrivateSymbol].hostEntry !== undefined) {
+                    hostEntryName = this[PrivateSymbol].hostEntry.User.Name;
                 }
 
-                const achScore = document.querySelector('#achievementsScore')
-                await showAchievement(achScore, this.timings.fadeIn, this.timings.fadeOut,
-                    this.timings.showAchievements, this.smallMoveDistance);
+                // add temporary entry for displaying
+                npe.push(this[PrivateSymbol].makeFakeEntry());
             }
 
-            this[PrivateSymbol].dismissAchievements();
+            return npe;
         };
 
-        this[PrivateSymbol].handleDismissClick = () => {
-            if (this[PrivateSymbol].haveDismissedAchievements) {
-                this[PrivateSymbol].dismissRank();
-            } else {
-                this[PrivateSymbol].dismissAchievements();
-            }
-        };
-
-        this[PrivateSymbol].dismissAchievements = () => {
-            const dismissThis = (delay) => { window.setTimeout(() => this[PrivateSymbol].dismissRank(), delay); };
-            this[PrivateSymbol].haveDismissedAchievements = true;
-
-            // hide the previous section
-            const achCont = document.getElementById('achievementsContent');
-            if (achCont) {
-                achCont.style.display = 'none';
+        this[PrivateSymbol].makeFakeEntry = () => {
+            let hostEntryName = '';
+            if (this[PrivateSymbol].hostEntry !== null && this[PrivateSymbol].hostEntry !== undefined) {
+                hostEntryName = this[PrivateSymbol].hostEntry.User.Name;
             }
 
-            // then bring in rank stuff
-            const rankAnnouncement = document.getElementById('rankAnnouncement');
-            tweenMarginTopOpacity(rankAnnouncement, {
-                duration: this.timings.fadeIn,
-                easing: quadOut,
-                from: {
-                    marginTop: this.tweenProps.smallAppearMargin,
-                    opacity: 0
-                },
-                to: {
-                    marginTop: this.tweenProps.noMargin,
-                    opacity: 1
-                },
-                onend: (target) => {
-                    tweenMarginTopOpacity(rankAnnouncement, {
-                        duration: this.timings.fadeOut,
-                        delay: this.timings.displayRank,
-                        easing: quadOut,
-                        from: {
-                            marginTop: this.tweenProps.noMargin,
-                            opacity: 1
-                        },
-                        to: {
-                            marginTop: this.tweenProps.smallDisappearMargin,
-                            opacity: 0
-                        },
-                    });
-                }
-            });
-
-            const rankDisplay = document.getElementById('rankDisplay');
-            tweenMarginTopOpacity(rankDisplay, {
-                duration: this.timings.fadeIn * 1.1,
-                easing: quadOut,
-                from: {
-                    marginTop: this.tweenProps.smallAppearMargin,
-                    opacity: 0
-                },
-                to: {
-                    marginTop: this.tweenProps.noMargin,
-                    opacity: 1
-                },
-                onend: (target) => {
-                    tweenMarginTopOpacity(rankDisplay, {
-                        duration: this.timings.fadeOut,
-                        delay: this.timings.displayRank,
-                        easing: quadOut,
-                        from: {
-                            marginTop: this.tweenProps.noMargin,
-                            opacity: 1
-                        },
-                        to: {
-                            marginTop: this.tweenProps.smallDisappearMargin,
-                            opacity: 0
-                        },
-                    });
-                }
-            });
-
-            // then build out the score cards
-            const rankListSection = document.getElementById('rankList');
-
-            // make the player listing
-            const playerCard = this[PrivateSymbol].buildListItem(rankListSection, this[PrivateSymbol].newPlayerEntry);
-            playerCard.style.opacity = 0;
-
-            // transform px to vh
-            const cardHeightVH = 100 * playerCard.offsetHeight / window.innerHeight;
-            const travel = cardHeightVH * 3;
-            let upperCard = playerCard;
-            let lowerCard = false;
-            const upperY = 0;
-            let lowerY = upperY + cardHeightVH * 1.5;
-
-            if (!this[PrivateSymbol].creatorEntry) {
-                // just rocking the player card, so show it for a bit, then dismiss it
-                tweenTopOpacity(upperCard, {
-                    duration: this.timings.fadeIn,
-                    easing: quadOut,
-                    from: {
-                        top: upperY + travel,
-                        opacity: 0
-                    },
-                    to: {
-                        top: upperY,
-                        opacity: 1
-                    },
-                    onend: (target) => {
-                        dismissThis(this.timings.displayRank);
-                    }
-                });
-            } else {
-                const creatorCard = this[PrivateSymbol].buildListItem(rankListSection, this[PrivateSymbol].creatorEntry);
-                creatorCard.style.opacity = 0;
-
-                const rankGap = this[PrivateSymbol].newPlayerEntry.Rank - this[PrivateSymbol].creatorEntry.Rank;
-                if (this[PrivateSymbol].oldPlayerEntry !== undefined &&
-                    (this[PrivateSymbol].rankedUp && rankGap > 0 || this[PrivateSymbol].beatCreatorForFirstTime)) {
-                    this[PrivateSymbol].updateCardRank(playerCard, this[PrivateSymbol].oldPlayerEntry.Rank);
-                }
-
-                // if player has a higher rank number (worse rank), put them in lower slot
-                // or, if player beat creator, put them lower, because going to swap after we display
-                upperCard = (rankGap > 0 || this[PrivateSymbol].beatCreatorForFirstTime) ? creatorCard : playerCard;
-                lowerCard = (rankGap > 0 || this[PrivateSymbol].beatCreatorForFirstTime) ? playerCard : creatorCard;
-
-                // if we only increased our rank below the creator, we want to celebrate this tiny shred of victory by
-                // flying the cards in, then showing an animation of the player moving up a bit, but still beneath Paco.
-                if (this[PrivateSymbol].rankedUp && rankGap > 0) { lowerY = upperY + cardHeightVH * 2.5; }
-
-                // move upper card into place
-                tweenTopOpacity(upperCard, {
-                    duration: this.timings.fadeIn,
-                    easing: quadOut,
-                    delay: this.timings.fadeIn * 0.2,
-                    from: {
-                        top: upperY + travel,
-                        opacity: 0
-                    },
-                    to: {
-                        top: upperY,
-                        opacity: 1
-                    }
-                });
-
-                // move lower card into place
-                tweenTopOpacity(lowerCard, {
-                    duration: this.timings.fadeIn,
-                    easing: quadOut,
-                    delay: this.timings.fadeIn * 0.2,
-                    from: {
-                        top: lowerY + travel,
-                        opacity: 0
-                    },
-                    to: {
-                        top: lowerY,
-                        opacity: 1
-                    },
-                    onend: (target) => {
-                        this[PrivateSymbol].doSwapAnimation(upperCard, lowerCard, dismissThis);
-                    }
-                });
-            }
-        };
-
-        this[PrivateSymbol].doSwapAnimation = (upperCard, lowerCard, dismissThis) => {
-            // gsap can't deal with non-existent dom element properties without using a plugin, so just make an object
-            let oldRank = 9999999;
-            if (this[PrivateSymbol].oldPlayerEntry){
-                oldRank = this[PrivateSymbol].oldPlayerEntry.Rank;
-            }
-
-            const cardHeightVH = 100 * upperCard.offsetHeight / window.innerHeight;
-            const upperY = 0;
-            let lowerY = upperY + cardHeightVH * 1.5;
-            const rankChanger = { rank: oldRank };
-            const travel = cardHeightVH * 1.5;
-
-            if (this[PrivateSymbol].beatCreatorForFirstTime) {
-                const thisDelay = this.timings.displayRank * 0.25;
-                const nextDelay = this.timings.displayRank * 0.7;
-
-                // move lower card into place
-                tweenOpacity(lowerCard, {
-                    duration: this.timings.fadeIn,
-                    easing: quadOut,
-                    delay: this.timings.fadeIn * 0.2,
-                    from: {
-                        opacity: 1
-                    },
-                    to: {
-                        opacity: 1
-                    },
-                    onprogress: (target, t) => {
-                        // MUSTFIX: animate this by using t which goes 0 to 1
-                        // old: oldRank
-                        const r = this[PrivateSymbol].newPlayerEntry.Rank
-                        this[PrivateSymbol].updateCardRank(lowerCard, r);
-                    }
-                });
-
-                // scale creator card back behind player
-                tweenScale(upperCard, {
-                    duration: this.timings.fadeIn / 2,
-                    easing: sineOut,
-                    delay: thisDelay,
-                    from: { x: 1, y: 1 },
-                    to: { x: 0.82, y: 0.82 },
-                    onend: (target) => {
-                        tweenScale(upperCard, {
-                            duration: this.timings.fadeIn / 2,
-                            easing: sineIn,
-                            delay: thisDelay,
-                            from: { x: 0.82, y: 0.82 },
-                            to: { x: 1, y: 1 },
-                        });
-                    }
-                });
-
-                // scale player card up over audience
-                tweenScale(lowerCard, {
-                    duration: this.timings.fadeIn / 2,
-                    easing: sineOut,
-                    delay: thisDelay,
-                    from: { x: 1, y: 1 },
-                    to: { x: 1.13, y: 1.13 },
-                    onend: (target) => {
-                        tweenScale(lowerCard, {
-                            duration: this.timings.fadeIn / 2,
-                            easing: sineIn,
-                            delay: thisDelay,
-                            from: { x: 1.13, y: 1.13 },
-                            to: { x: 1, y: 1 },
-                        });
-                    }
-                });
-
-                // swap spots
-                tweenTopOpacity(lowerCard, {
-                    duration: this.timings.fadeIn,
-                    easing: linear,
-                    delay: thisDelay,
-                    from: { top:upperY, opacity: 1 },
-                    to: { top:lowerY, opacity: 1 }
-                });
-
-                tweenTopOpacity(upperCard, {
-                    duration: this.timings.fadeIn,
-                    easing: linear,
-                    delay: thisDelay,
-                    from: { top:lowerY, opacity: 1 },
-                    to: { top:upperY, opacity: 1 },
-                    onend: (target) => {
-                        tweenTopOpacity(lowerCard, {
-                            duration: this.timings.fadeIn,
-                            easing: quadIn,
-                            delay: thisDelay,
-                            from: { top:upperY, opacity: 1 },
-                            to: { top:upperY - travel, opacity: 0 }
-                        });
-
-                        tweenTopOpacity(upperCard, {
-                            duration: this.timings.fadeIn,
-                            easing: quadIn,
-                            delay: thisDelay,
-                            from: { top:lowerY, opacity: 1 },
-                            to: { top:lowerY - travel, opacity: 0 },
-                            onend: (target) => {
-                                dismissThis(0);
-                            }
-                        });
-                    }
-                });
-            } else if (this[PrivateSymbol].rankedUp && rankGap > 0) {
-                // slide player up
-                tweenTopOpacity(lowerCard, {
-                    duration: this.timings.fadeIn,
-                    easing: quadOut,
-                    delay: this.timings.fadeIn * 0.2,
-                    from: {
-                        top: lowerCard.style.top,
-                        opacity: 1
-                    },
-                    to: {
-                        top: upperY + cardHeightVH * 1.5,
-                        opacity: 1
-                    },
-                    onprogress: (target, t) => {
-                        // MUSTFIX: animate this by using t which goes 0 to 1
-                        // old: oldRank
-                        const r = this[PrivateSymbol].newPlayerEntry.Rank
-                        this[PrivateSymbol].updateCardRank(lowerCard, r);
-                    }
-                });
-            } else {
-                dismissThis(this.timings.displayRank);
-            }
-
-        }
-
-        this[PrivateSymbol].updateCardRank = (cardElement, newRank) => {
-            // when we animate rank, we'll get float values, so round it off
-            newRank = Math.round(newRank);
-
-            [...cardElement.children].forEach((child) => {
-                if (child.classList.contains('o3h-leaderboard__list-member-rank')) {
-                    child.innerHTML = newRank;
-                }
-            });
-        };
-
-        this[PrivateSymbol].dismissRank = () => {
-            // immediately hide achievements
-            document.getElementById('o3h-leaderboard').innerHTML = '';
-        };
-
-        this[PrivateSymbol].insertAudienceIntoLeaderboard = (leaderboardEntries, user, score) => {
-            // find where we want to insert an entry for the current user, it should be below all the better scores and above all the worse scores
-            let insertAtIndex = leaderboardEntries.findIndex((entry) => score >= entry.Score);
-            const currentUserIndex = leaderboardEntries.findIndex((entry) => user.Name === entry.User.Name);
-
-            if (insertAtIndex < 0) {
-                insertAtIndex = leaderboardEntries.length;
-            }
-
-            // if they're in the leaderboard already, and already have a better score, don't change anything
-            if (currentUserIndex >= 0 && insertAtIndex >= currentUserIndex) {
-                return leaderboardEntries[currentUserIndex];
-            }
-
-            const playerObject = {
-                Score: score,
-                Rank: insertAtIndex + 1,
-                User: user,
-                IsOwner: false,
+            // create fake entry for displaying when one doesn't exist (happens on first play)
+            return {
+                Score: null,
+                Rank: null,
+                User: this[PrivateSymbol].activeUser,
+                IsEmphasized: true,
+                IsHost: false,
+                IsHostReplay: (this[PrivateSymbol].activeUser.Name === hostEntryName)
             };
-
-            // make an Entry object for the score and put it in at the right place
-            leaderboardEntries.splice(insertAtIndex, 0, playerObject);
-
-            // splice out any entries in the leaderboard that have the same user name as the current user (skipping the first, best score for the user)
-            // this works because user names are unique on Oooh
-            let foundBest = false;
-            for (let i = 0; i < leaderboardEntries.length; i++) {
-                const entry = leaderboardEntries[i];
-                if (entry.User.Name === user.Name) {
-                    if (!foundBest) {
-                        foundBest = true;
-                    } else {
-                        leaderboardEntries.splice(i, 1);
-                        i--;
-                    }
-                }
-                leaderboardEntries[i].Rank = i + 1;
-            }
-
-            return playerObject;
-        };
-
-        this[PrivateSymbol].buildListItem = (listElement, entry, classNames = null, isMe = false) => {
-            const classes = [];
-
-            // eslint won't handle null coalesce
-            if (!classNames) {
-                classNames = [];
-            }
-
-            classNames.forEach((cn) => {
-                classes.push(`o3h-leaderboard__list-member--${cn}`);
-            });
-
-            const meClass = isMe ? 'o3h-leaderboard__list-member--self' : false;
-            const listItem = this[PrivateSymbol].createElementWithParent('div', listElement, ['o3h-leaderboard__list-member'], meClass);
-            listItem.setAttribute('data-rank', entry.Rank);
-
-            const listItemContent = `
-                <div class='o3h-leaderboard__list-member-rank'>${entry.Rank}</div>
-                <div class='o3h-leaderboard__list-member-avatar' style='background-image: url(${entry.User.AvatarImageUrl})'></div>
-                <div class='o3h-leaderboard__list-member-name'>${entry.User.Name}</div>
-                <div class='o3h-leaderboard__list-member-score'>
-                    <span class='o3h-leaderboard__list-member-score-num'>${entry.Score}${entry.Score !== '-' ? 'pts' : ''}</span>
-                </div>
-            `;
-
-            listItem.innerHTML = listItemContent;
-            return listItem;
-        };
-
-        this[PrivateSymbol].createElementWithParent = (elementType, parentElement, classes, id = null) => {
-            const thisElement = document.createElement(elementType);
-            parentElement.appendChild(thisElement);
-
-            classes.forEach((c) => {
-                if (c && c.length > 0) {
-                    thisElement.classList.add(c);
-                }
-            });
-
-            if (id) {
-                thisElement.setAttribute('id', id);
-            }
-
-            return thisElement;
-        };
-
-        this[PrivateSymbol].createAchievementsSection = (parentElement, achievements, score) => {
-            const chievos = [];
-            for (let chievoIndex = 0; chievoIndex < achievements.length; chievoIndex++) {
-                chievos.push(`
-                    <div class='o3h-leaderboard__achievements-box_achievement' id='achievement${chievoIndex}' style='opacity: 0'>
-                        <span>${achievements[chievoIndex]}</span>
-                    </div>
-                `);
-            }
-
-            const achievementsElement = this[PrivateSymbol].createElementWithParent('div', parentElement, ['o3h-leaderboard__achievements-box']);
-            achievementsElement.innerHTML = `
-                <div id='achievementsContent' class='o3h-leaderboard__achievements-box_content'>
-                    ${chievos.join('')}
-                    <div class='o3h-leaderboard__achievements-box_score' id='achievementsScore' style='opacity: 0'>
-                        <span>${score}</span>
-                    </div>
-                </div>
-            `;
-
-            return achievementsElement;
-        };
-
-        this[PrivateSymbol].createRankSection = (parentElement, rank, isNewRank) => {
-            const rankBox = this[PrivateSymbol].createElementWithParent('div', parentElement, ['o3h-leaderboard__rank-box']);
-            rankBox.innerHTML = `
-                <div id='rankContent' class='o3h-leaderboard__rank-box_content'>
-                    <div class='o3h-leaderboard__rank-box_announcement' id='rankAnnouncement'>${isNewRank ? 'New Rank!' : 'Rank'}</div>
-                    <div class='o3h-leaderboard__rank-box_number' id='rankDisplay'>${rank}</div>
-                </div>
-                <div id='rankList' class='o3h-leaderboard__rank-box_list'></div>
-            `;
-
-            return rankBox;
         };
     }
 
     /**
-     * Wait for all the needed data to preload
-     * @returns {Promise<unknown[]>} A promise that resolves when all needed data is preloaded.
+     * Returns all the entries from the loaded leaderboard data, with player info inserted if a score
+     * was provided in constructor.
+     *
+     * @return {LeaderboardEntryDisplay[]} - an array of all loaded entries.
      */
-    async preloadData() {
-        return Promise.all(
-            [this[PrivateSymbol].currUserInfoPromise, this[PrivateSymbol].leaderboardDataPromise]
-        );
+    getAllEntries() {
+        this[PrivateSymbol].checkInitialized();
+        return this[PrivateSymbol].localEntries;
     }
 
     /**
-     * Shows the pre-game leaderboard, attaching it to the provided DOM element.
-     * The pre-game leaderboard displays existing scores, and the player's current best score, if any
+     * Returns an array of up to 3 top scoring entries.
      *
-     * @param {HTMLElement} hostElement - The DOM element to attach the leaderboard to
+     * @return {LeaderboardEntryDisplay[]} - an array of up to 3 entries
      */
-    async showPreGame(hostElement) {
-        await this[PrivateSymbol].showLeaderboardWhenLoaded(hostElement, true);
+    getPodiumEntries() {
+        this[PrivateSymbol].checkInitialized();
+        console.log("test")
+        return this[PrivateSymbol].localEntries.slice(0, 3);
     }
 
     /**
-     * Shows the post-game leaderboard, attaching it to the provided DOM element.
-     * The post-game leaderboard only shows the creator's score, and the player's new score,
-     * as well as any achievements from the current game.
+     * Returns an array of up to 2 entries, to be used for showing how the player compares to the creator.
+     * If the creator has no score, it will only contain the player's score.  Also, if
+     * the creator or player is in the top 3, their score will not be in this list.
+     * If the player has no score yet, their entry will have null for the Rank and Score fields.
      *
-     * @param {HTMLElement} hostElement - The DOM element to attach the leaderboard to
-     * @param {number} playerScore - The player's new score
+     * @return {LeaderboardEntryDisplay[]} - an array of up to 2 entries
      */
-    async showPostGame(hostElement, playerScore) {
-        await this[PrivateSymbol].showLeaderboardWhenLoaded(hostElement, false, playerScore);
+    getNonPodiumEntries() {
+        this[PrivateSymbol].checkInitialized();
+        return this[PrivateSymbol].getCreatorPlayerEntries(false);
     }
 
     /**
-     * Sets basic leaderboard font and rendering styles
-     *
-     * Can be chained with any other modifyXYZ calls.
-     *
-     * You must call buildStyles afterward.
-     *
-     * @param {string} fontFamily - The default font family to use for the leaderboard.  The font must be loaded and available.
-     * @param {string} fontColor - The default color for all leaderboard text
-     * @param {number} fontSize - The default font size for all leaderboard text, in VH units
-     * @param {string} listItemBackgroundImageUrl - The image to use as a background for leaderboard entries. Image should be pre-loaded to prevent flash-of-unstyled-content
+     * Similar to getNonPodiumEntries, but returns the entries even if they are in top 3.
+     * Useful for showing relationship between player and creator scores after a game, if the podium is NOT being shown.
+     * @deprecated since leaderboard design changes April 2022. Please use getPodiumEntries() and getNonPodiumEntries() instead
+     * @return {LeaderboardEntryDisplay[]} - an array of up to 2 entries
      */
-    modifyBasicCardStyles(fontFamily, fontColor, fontSize, listItemBackgroundImageUrl){
-        this[PrivateSymbol].styleConfig.leaderboard.font = fontFamily;
-        this[PrivateSymbol].styleConfig.leaderboard.size = fontSize;
-        this[PrivateSymbol].styleConfig.leaderboard.color = fontColor;
-
-        this[PrivateSymbol].styleConfig.listMember.backgroundImageUrl = listItemBackgroundImageUrl;
-        this[PrivateSymbol].styleConfig.listMember.backgroundImageUrlFirst = listItemBackgroundImageUrl;
-        this[PrivateSymbol].styleConfig.listMember.backgroundImageUrlSecond = listItemBackgroundImageUrl;
-        this[PrivateSymbol].styleConfig.listMember.backgroundImageUrlThird = listItemBackgroundImageUrl;
-
-        return this;
+    getCreatorAndPlayerEntries() {
+        console.warn('getCreatorAndPlayerEntries() is deprecated, please use getPodiumEntries() and getNonPodiumEntries() instead');
+        this[PrivateSymbol].checkInitialized();
+        return this[PrivateSymbol].getCreatorPlayerEntries(true);
     }
 
     /**
-     * Sets the background images for first/second/third place leaderboard entries, when showing in pre-game mode.
+     * Returns most valuable achievement player has achieved with new score, or null if no achievement.
      *
-     * Can be chained with any other modifyXYZ calls.
-     *
-     * You must call buildStyles afterward
-     *
-     * @param {string} firstPlaceUrl - path to the first place background image
-     * @param {string} secondPlaceUrl - path to the second place background image
-     * @param {string} thirdPlaceUrl - path to the third place background image
+     * @return {object} - the most valuable achievement, in the form { type, description }. Type will be member of LeaderboardData.ACHIEVEMENT_TYPE
      */
-    modifyListMemberPlaceBackgrounds(firstPlaceUrl, secondPlaceUrl, thirdPlaceUrl){
-        this[PrivateSymbol].styleConfig.listMember.backgroundImageUrlFirst = firstPlaceUrl;
-        this[PrivateSymbol].styleConfig.listMember.backgroundImageUrlSecond = secondPlaceUrl;
-        this[PrivateSymbol].styleConfig.listMember.backgroundImageUrlThird = thirdPlaceUrl;
+    getBestAchievement() {
+        this[PrivateSymbol].checkInitialized();
 
-        return this;
-    }
-
-    /**
-     * Sets more detailed styling on the leaderboard
-     *
-     * Can be chained with any other modifyXYZ calls.
-     *
-     * You must call buildStyles afterward.
-     *
-     * @param {string} rankFont - Font family to use for the rank on leaderboard entries
-     * @param {string} rankColor - Color to use for the rank on leaderboard entries
-     * @param {number} rankSize - Size in VH units to use for the rank on leaderboard entries
-     * @param {string} nameFont - Font family to use for the player name on leaderboard entries
-     * @param {string} nameColor - Color to use for the player name on leaderboard entries
-     * @param {number} nameSize - Size in VH units to use for the player name on leaderboard entries
-     * @param {string} scoreFont - Font family to use for the score on leaderboard entries
-     * @param {string} scoreColor - Color to use for the score on leaderboard entries
-     * @param {number} scoreSize - Size in VH units to use for the score on leaderboard entries
-     * @param {string} pointsFont - Font family to use for the word "pts" on leaderboard entries. This sits right next to the score.
-     * @param {string} pointsColor - Color to use for the word "pts" on leaderboard entries. This sits right next to the score.
-     * @param {number} pointsSize - Size in VH units to use for the word "pts" on leaderboard entries. This sits right next to the score.
-     */
-    modifyExtendedCardStyles(rankFont, rankColor, rankSize, nameFont, nameColor, nameSize, scoreFont, scoreColor, scoreSize, pointsFont, pointsColor, pointsSize){
-        this[PrivateSymbol].styleConfig.listMember.rank.font = rankFont;
-        this[PrivateSymbol].styleConfig.listMember.rank.color = rankColor;
-        this[PrivateSymbol].styleConfig.listMember.rank.size = rankSize + 'vh';
-
-        this[PrivateSymbol].styleConfig.listMember.name.font = nameFont;
-        this[PrivateSymbol].styleConfig.listMember.name.color = nameColor;
-        this[PrivateSymbol].styleConfig.listMember.name.size = nameSize + 'vh';
-
-        this[PrivateSymbol].styleConfig.listMember.score.font = scoreFont;
-        this[PrivateSymbol].styleConfig.listMember.score.color = scoreColor;
-        this[PrivateSymbol].styleConfig.listMember.score.size = scoreSize + 'vh';
-
-        this[PrivateSymbol].styleConfig.listMember.points.font = pointsFont;
-        this[PrivateSymbol].styleConfig.listMember.points.color = pointsColor;
-        this[PrivateSymbol].styleConfig.listMember.points.size = pointsSize + 'vh';
-
-        return this;
-    }
-
-    /**
-     * Sets styles for the announcements that display in post-game mode, such as "Highscore - 1234", or "Beat Creator"
-     *
-     * Can be chained with any other modifyXYZ calls.
-     *
-     * You must call buildStyles afterward.
-     *
-     * @param {string} titleFont - Font family to use for the announcement text
-     * @param {string} titleColor - Color to use for the announcement text
-     * @param {number} titleSize - Size in VH units to use for the announcement text
-     * @param {string} scoreFont - Font family to use for the announcement number (rank, score, etc)
-     * @param {string} scoreColor - Color to use for the announcement number (rank, score, etc)
-     * @param {number} scoreSize - Size in VH units to use for the announcement number (rank, score, etc)
-     */
-    modifyAnnouncementStyles(titleFont, titleColor, titleSize, scoreFont, scoreColor, scoreSize){
-        this[PrivateSymbol].styleConfig.announcement.title.font = titleFont;
-        this[PrivateSymbol].styleConfig.announcement.title.color = titleColor;
-        this[PrivateSymbol].styleConfig.announcement.title.size = titleSize + 'vh';
-
-        this[PrivateSymbol].styleConfig.announcement.score.font = scoreFont;
-        this[PrivateSymbol].styleConfig.announcement.score.color = scoreColor;
-        this[PrivateSymbol].styleConfig.announcement.score.size = scoreSize + 'vh';
-
-        return this;
-    }
-
-    /**
-     * Builds the styles and adds them to the DOM.  This must be called after any modifyXYZ styling calls.
-     */
-    buildStyles() {
-        const stylesheetId = 'o3h-leaderboard-stylesheet';
-        const existingStylesheet = document.getElementById(stylesheetId);
-        if (existingStylesheet){
-            existingStylesheet.parentNode.removeChild(existingStylesheet);
+        // new record for this template
+        if (this[PrivateSymbol].didAchieveNewGlobalRecord) {
+            return {
+                Type: module.exports.ACHIEVEMENT_TYPE.GLOBAL_HIGH_SCORE,
+                Description: 'New Global High Score'
+            };
         }
 
-        const styleNode = document.createElement('style');
-        styleNode.id = stylesheetId;
-        styleNode.innerHTML = `
-            .o3h-leaderboard {
-                font: ${this[PrivateSymbol].styleConfig.leaderboard.size}vh ${this[PrivateSymbol].styleConfig.leaderboard.font};
-                color: ${this[PrivateSymbol].styleConfig.leaderboard.color};
-                width: calc(100vh * ${this[PrivateSymbol].styleConfig.supportedAspects.tallest});
-            }
-            
-            .o3h-leaderboard__click-catcher {
-                width: 100vw;
-                height: 100vh;
-                z-index: 1000;
-                position: fixed;
-                top: 0;
-                left: 0;
-            }
-            
-            .o3h-leaderboard__list {
-                position: absolute;
-                z-index: 1;
-                left: 0;
-                top: ${this[PrivateSymbol].styleConfig.listSection.topPositionPercent}vh;
-                height: calc(100vh - ${this[PrivateSymbol].styleConfig.listSection.topPositionPercent}vh);
-                display: flex;
-                flex-direction: column;
-                width: 100%;
-            }
-            
-            .o3h-leaderboard__list_podium {
-                margin-bottom: 5vh;
-            }
-            
-            .o3h-leaderboard__list-member {
-                display: flex;
-                flex-direction: row;
-                align-items: center;
-                width: 100vw;
-                max-width: calc(100vh * ${this[PrivateSymbol].styleConfig.supportedAspects.shortest});
-                height: calc(100vw / ${this[PrivateSymbol].styleConfig.listMember.aspectRatio});
-                max-height: calc(100vh * ${this[PrivateSymbol].styleConfig.supportedAspects.shortest} / ${this[PrivateSymbol].styleConfig.listMember.aspectRatio});
-                margin: 0 auto;
-                background-position: center;
-                background-repeat: no-repeat;
-                background-size: contain;
-                background-image: url(${this[PrivateSymbol].styleConfig.listMember.backgroundImageUrl});
-                padding: 0 4vh;
-                box-sizing: border-box;
-            }
-            
-            .o3h-leaderboard__list-member[data-rank="1"] {
-                background-image: url(${this[PrivateSymbol].styleConfig.listMember.backgroundImageUrlFirst});
-            }
-            
-            .o3h-leaderboard__list-member[data-rank="2"] {
-                background-image: url(${this[PrivateSymbol].styleConfig.listMember.backgroundImageUrlSecond});
-            }
-            
-            .o3h-leaderboard__list-member[data-rank="3"] {
-                background-image: url(${this[PrivateSymbol].styleConfig.listMember.backgroundImageUrlThird});
-            }
-            
-            .o3h-leaderboard__list-member-rank,
-            .o3h-leaderboard__list-member-avatar,
-            .o3h-leaderboard__list-member-name,
-            .o3h-leaderboard__list-member-score {
-                display: inline-block;
-                flex-shrink: 0;
-            }
-            
-            .o3h-leaderboard__list-member-rank{
-                font: ${this[PrivateSymbol].styleConfig.listMember.rank.size} ${this[PrivateSymbol].styleConfig.listMember.rank.font};
-                color: ${this[PrivateSymbol].styleConfig.listMember.rank.color};
-                min-width: 5vh;
-            }
-            
-            .o3h-leaderboard__list-member-avatar{
-                border-radius: 50%;
-                width: 4vh;
-                height: 4vh;
-                margin-right: 1vh;
-                background: gray;
-                background-size: cover;
-                background-position: center;
-                background-repeat: no-repeat;
-            }
-            
-            .o3h-leaderboard__list-member-name{
-                font: ${this[PrivateSymbol].styleConfig.listMember.name.size} ${this[PrivateSymbol].styleConfig.listMember.name.font};
-                color: ${this[PrivateSymbol].styleConfig.listMember.name.color};
-            }
-            
-            .o3h-leaderboard__list-member-score{
-                flex-grow: 1;
-                text-align: right;
-            }
-            
-            .o3h-leaderboard__list-member-score-num{
-                font: ${this[PrivateSymbol].styleConfig.listMember.score.size} ${this[PrivateSymbol].styleConfig.listMember.score.font};
-                color: ${this[PrivateSymbol].styleConfig.listMember.score.color};
-            }
-            
-            .o3h-leaderboard__list-member-score-pts{
-                font: ${this[PrivateSymbol].styleConfig.listMember.points.size} ${this[PrivateSymbol].styleConfig.listMember.points.font};
-                color: ${this[PrivateSymbol].styleConfig.listMember.points.color};
-            }
-            
-            .o3h-leaderboard__list-spacer {
-                height: 2vh;
-            }
-            
-            .o3h-leaderboard__achievements-box {
-                position: absolute;
-                z-index: 1;
-                left: 0;
-                top: ${this[PrivateSymbol].styleConfig.listSection.topPositionPercent}vh;
-                height: calc(100vh - ${this[PrivateSymbol].styleConfig.listSection.topPositionPercent}vh);
-                width: 100%;
-                display: flex;
-                flex-direction: column;
-                width: 100%;
-                overflow: hidden;
-            }
-            
-            .o3h-leaderboard__achievements-box_content,
-            .o3h-leaderboard__rank-box_content {
-                top: 7vh;
-                position: absolute;
-                width: 100%;
-                height: 100%;
-            }
-            
-            .o3h-leaderboard__rank-box_list {
-                top: 20vh;
-                position: absolute;
-                width: 100%;
-                height: 100%;
-            }
-            
-            .o3h-leaderboard__rank-box_list .o3h-leaderboard__list-member {
-                position: absolute;
-                left: 0;
-                right: 0;
-            }
-            
-            .o3h-leaderboard__rank-box_list .o3h-leaderboard__list-member-wrapper#o3h-leaderboard__list-member--self {
-                z-index: 1;
-            }
-            
-            
-            .o3h-leaderboard__achievements-box_achievement,
-            .o3h-leaderboard__rank-box_announcement {
-                position: absolute;
-                left: 0;
-                right: 0;
-                text-align: center;
-                color: ${this[PrivateSymbol].styleConfig.announcement.title.color};
-                font-size: ${this[PrivateSymbol].styleConfig.announcement.title.size};
-                font-family: ${this[PrivateSymbol].styleConfig.announcement.title.font};
-            }
-            
-            .o3h-leaderboard__achievements-box_score,
-            .o3h-leaderboard__rank-box_number {
-                position: absolute;
-                top: 5vh;
-                left: 0;
-                right: 0;
-                text-align: center;
-                color: ${this[PrivateSymbol].styleConfig.announcement.score.color};
-                font-size: ${this[PrivateSymbol].styleConfig.announcement.score.size};
-                font-family: ${this[PrivateSymbol].styleConfig.announcement.score.font};
-            }
-            
-            .o3h-leaderboard__rank-box {
-                position: absolute;
-                z-index: 0;
-                left: 0;
-                top: ${this[PrivateSymbol].styleConfig.listSection.topPositionPercent}vh;
-                width: 100%;
-                height: calc(100vh - ${this[PrivateSymbol].styleConfig.listSection.topPositionPercent}vh);
-                display: flex;
-                flex-direction: row;
-                justify-content: space-around;
-                overflow: hidden;
-            
-                background-size: contain;
-                background-repeat: no-repeat;
-                background-position: top;
-            }
-            
-            .o3h-leadboard__rank-box .o3h-leaderboard__list-member {
-                position: absolute;
-                top: 0;
-                left: 0;
-                right: 0;
-            }
-        `;
+        // new record for this oooh.
+        if (this[PrivateSymbol].didAchieveNewLocalRecord) {
+            return {
+                Type: module.exports.ACHIEVEMENT_TYPE.LOCAL_HIGH_SCORE,
+                Description: 'New High Score'
+            };
+        }
 
-        document.body.appendChild(styleNode);
+        // if creator has a score, and this is the first time we are getting higher than that score, beat creator
+        // tied scores are not better, first entry is better
+        if (this[PrivateSymbol].didAchieveBeatCreator) {
+            return {
+                Type: module.exports.ACHIEVEMENT_TYPE.BEAT_CREATOR,
+                Description: `Beat ${this[PrivateSymbol].hostEntry.User.Name}`
+            };
+        }
+
+        // tied score is not better, original score is better
+        if (this[PrivateSymbol].didAchieveNewPersonalBest) {
+            return {
+                Type: module.exports.ACHIEVEMENT_TYPE.NEW_PERSONAL_BEST,
+                Description: 'New Personal Best'
+            };
+        }
+
+        return null;
     }
-}
+
+    /**
+     * Returns the host's leaderboard entry
+     * @return {LeaderboardEntryDisplay}
+     */
+    getCreatorEntry() {
+        return this[PrivateSymbol].hostEntry;
+    }
+
+    /**
+     * Returns the player's leaderboard entry, or a fake one if no entry exists
+     * @return {LeaderboardEntryDisplay}
+     */
+    getPlayerEntry() {
+        let playerEntry = this[PrivateSymbol].localEntries.find((e) => (e.User.Name === this[PrivateSymbol].activeUser.Name && e.IsHost !== true));
+
+        if (!playerEntry) {
+            playerEntry = this[PrivateSymbol].makeFakeEntry();
+        }
+
+        return playerEntry;
+    }
+
+    /**
+     * Returns the next higher scoring player's leaderboard entry, or null if no entry is higher
+     * @param {number} score the score to be compared to when finding the next better score
+     * @return {LeaderboardEntryDisplay} or null if no higher score found
+     */
+    getNextBetterScoreEntry(score) {
+        const len = this[PrivateSymbol].localEntries.length - 1;
+
+        // Loop from lowest to highest score
+        for (let i = len; i >= 0; i--) {
+            const entry = this[PrivateSymbol].localEntries[i];
+            if (entry.Score > score) {
+                return entry;
+            }
+        }
+
+        return null;
+    }
+
+    /**
+     * Returns the named player's leaderboard entry, or a fake one if no entry exists
+     * @param {string} name the exact name of the player to find
+     * @return {LeaderboardEntryDisplay} or {Score: <number>} if no local or global entries found
+     */
+    getPersonalBestScoreEntry(name) {
+        const localBestEntry = this[PrivateSymbol].localEntries.length > 0
+            ? this[PrivateSymbol].localEntries.find((e) => (e.User.Name === name)) : { Score: Number.NEGATIVE_INFINITY };
+        const globalBestEntry = this[PrivateSymbol].globalEntries.length > 0
+            ? this[PrivateSymbol].globalEntries.find((e) => (e.User.Name === name)) : { Score: Number.NEGATIVE_INFINITY };
+
+        if (localBestEntry.Score > globalBestEntry.Score) {
+            return localBestEntry;
+        }
+        return globalBestEntry;
+    }
+
+    /**
+     * Returns the host's best leaderboard entry
+     * @return {LeaderboardEntryDisplay} or {Score: <number>} if no local or global entries found
+     */
+    getHostBestAllTimeScoreEntry() {
+        const localHostEntry = this[PrivateSymbol].localEntries.length > 0
+            ? this[PrivateSymbol].localEntries.find((e) => (e.IsHost === true)) : { Score: Number.NEGATIVE_INFINITY };
+        const localHostReplayEntry = this[PrivateSymbol].localEntries.length > 0
+            ? this[PrivateSymbol].localEntries.find((e) => (e.IsHostReplay === true)) : { Score: Number.NEGATIVE_INFINITY };
+        const hostName = this[PrivateSymbol].hostEntry.User.name;
+        const globalBestEntry = this[PrivateSymbol].globalEntries.length > 0
+            ? this[PrivateSymbol].globalEntries.find((e) => (e.User.Name === hostName)) : { Score: Number.NEGATIVE_INFINITY };
+
+        // Get the best of the host's local scores: original and replay (if it exists)
+        let localBestEntry = localHostEntry;
+        if (localHostReplayEntry.Score > localHostEntry.Score) {
+            localBestEntry = localHostReplayEntry;
+        }
+
+        let retEntry = null;
+        if (localBestEntry.Score > globalBestEntry.Score) {
+            retEntry = localBestEntry;
+        }
+        else {
+            retEntry = globalBestEntry;
+        }
+
+        return retEntry;
+    }
+
+    /**
+     * Returns the best global leaderboard entry, or a fake one if no entry exists
+     * @return {LeaderboardEntryDisplay} or {Score: <number>} if no entry found
+     */
+    getWorldRecordScoreEntry() {
+        return this[PrivateSymbol].globalEntries.length > 0 ? this[PrivateSymbol].globalEntries[0] : { Score: Number.NEGATIVE_INFINITY };
+    }
+};
+
+/**
+ * A class to set test data on, and then pass to leaderboardData.initialize() instead of o3h.  Allows you to test specific leaderboard edge cases.
+ * @type {exports.MockO3H}
+ */
+module.exports.MockO3H = class MockO3H {
+    /**
+     * @typedef MockUser
+     * @property {string} Name
+     * @property {string} AvatarImageUrl
+     * @property {number} Level
+     * @property {0|1} Type - Use 0 for audience, 1 for host
+     */
+
+    /**
+     * Constructor
+     * @param {MockUser} activeUser a mocked user of the form <tt>{ Name: testUsername, AvatarImageUrl: 'http://placekitten.com/256/256', Level: 50, Type: [0 or 1]}</tt>
+     * @param {LeaderboardEntryDisplay[]} localEntries an array of raw leaderboard entries of the form <tt>{ Rank: [sequential number], User: [same form as activeUser param above], Score: [any number lower than the last], IsOwner: [true/false] }</tt>
+     * @param {LeaderboardEntryDisplay[]} [globalEntries] (optional) an array similar to localEntries, representing the data across all hostings of the module
+     */
+    constructor(activeUser, localEntries, globalEntries = null) {
+        this.mockService = {
+            entries: localEntries,
+            globalEntries: globalEntries || localEntries,
+            async getLeaderboard() {
+                return {
+                    Entries: localEntries,
+                    GlobalEntries: globalEntries || localEntries
+                };
+            },
+            async getActiveUserInformation() {
+                return activeUser;
+            },
+            async addToLeaderboard(updateObject) {
+                let i;
+
+                // only add if we got a better score
+                if (!localEntries.find((e) => e.IsHost !== true && e.User.Name === activeUser.Name && e.Score >= updateObject.Score)) {
+                    // remove current user entry, unless it's an owner entry
+                    localEntries = localEntries.filter((e) => e.IsHost === true || e.User.Name !== activeUser.Name);
+
+                    for (i = 0; i < localEntries.length && localEntries[i].Score >= updateObject.Score; i++);
+                    localEntries.splice(i, 0, { Score: updateObject.Score, User: activeUser, IsOwner: false });
+
+                    localEntries = localEntries.map((e, index) => {
+                        e.Rank = index + 1;
+                        return e;
+                    });
+                }
+
+                if (!this.globalEntries.find((e) => e.User.Name === activeUser.Name && e.Score >= updateObject.Score)) {
+                    // remove current user entry, unless it's an owner entry
+                    this.globalEntries = this.globalEntries.filter((e) => e.IsHost === true || e.User.Name !== activeUser.Name);
+
+                    for (i = 0; i < this.globalEntries.length && this.globalEntries[i].Score >= updateObject.Score; i++) ;
+                    this.globalEntries.splice(i, 0, { Score: updateObject.Score, User: activeUser });
+
+                    this.globalEntries = this.globalEntries.map((e, index) => {
+                        e.Rank = index + 1;
+                        return e;
+                    });
+                }
+
+                return {
+                    Entries: localEntries,
+                    GlobalEntries: this.globalEntries
+                };
+            }
+        };
+    }
+
+    getUserDataService() {
+        return this.mockService;
+    }
+};
+

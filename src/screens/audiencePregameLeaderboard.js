@@ -2,6 +2,7 @@ import {LAYOUTS, SCREENS} from "../const";
 import ScreenBase from "./screenBase";
 import LayoutManagerInstance from "../layoutManager";
 
+
 export default class AudiencePregameLeaderboard extends ScreenBase {
     constructor(o3h, mainApp) {
         super(o3h, mainApp);
@@ -12,7 +13,7 @@ export default class AudiencePregameLeaderboard extends ScreenBase {
             await LayoutManagerInstance.createTopHalfCameraLayout();
         });
         this.preloadList.addLoad(async () => {
-            await mainApp.leaderboard.preloadData();
+            mainApp.leaderboard.initialize(o3h.Instance);
         });
 
         this.hostElement = document.querySelector('#pregameLeaderboard');
@@ -25,6 +26,6 @@ export default class AudiencePregameLeaderboard extends ScreenBase {
     async show() {
         await super.show();
         const leaderboardContainer = document.querySelector('#pregameLeaderboard .leaderboard-container');
-        await mainApp.leaderboard.showPreGame(leaderboardContainer);
+        await mainApp.leaderboard.getPodiumEntires();
     }
 }
