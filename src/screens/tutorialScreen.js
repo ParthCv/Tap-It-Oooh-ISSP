@@ -3,7 +3,7 @@ import ScreenBase from "./screenBase";
 
 import * as consts from "../const";
 import { isCreatorMode } from "../util";
-
+import { LAYOUTS, SCREENS, SOUNDS} from "../const";
 import LayoutManagerInstance from "../layoutManager";
 import PersistentDataManagerInstance from "../persistentDataManager";
 import SoundManagerInstance from "../soundManager";
@@ -25,13 +25,26 @@ export default class TutorialScreen extends ScreenBase {
         this.skipTutorial = false;
         this.nextButton.onclick = () => {
             this.skipTutorial = true;
+            SoundManagerInstance.playSound(SOUNDS.SFX_BUTTON_TAP);
             this.mainApp.leaveTutorialScreen();
         }
+
+        this.settingsService = this.runtime.getSystemSettingsService();
     }
 
     async onShowing() {
-        console.log("Showng Tutorial");
+        console.log("Showing Tutorial");
         this.hostElement.classList.remove('hidden');
+    }
+
+    async show() {
+        await super.show();
+        this.settingsService.showSystemSettings();
+    }
+
+    async hide() {
+        await super.hide();
+        this.settingsService.hideSystemSettings();
     }
 
     // show() {

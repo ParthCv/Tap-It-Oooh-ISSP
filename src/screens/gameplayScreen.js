@@ -1,6 +1,8 @@
 import * as consts from  "../const";
+import {SOUNDS} from "../const";
 import ScreenBase from "./screenBase";
 import LayoutManagerInstance from "../layoutManager";
+import SoundManagerInstance from "../soundManager";
 
 
 export default class GameplayScreen extends ScreenBase {
@@ -66,6 +68,7 @@ export default class GameplayScreen extends ScreenBase {
         }         
 
         button.addEventListener("click", function() {
+            SoundManagerInstance.playSound(SOUNDS.SFX_BUTTON_TAP);
             if(!startedGame) { 
                 startTimer(5000);
                 startedGame = true;
@@ -74,6 +77,7 @@ export default class GameplayScreen extends ScreenBase {
             }
         })
     }
+
 
     async finishGame(score) {
         console.log(this.camera); // undefined
