@@ -25,9 +25,22 @@ export default class ReviewScreen extends ScreenBase {
             SoundManagerInstance.playSound(SOUNDS.SFX_BUTTON_TAP);
             this.mainApp.endModule();
         }
+
+        this.settingsService = this.runtime.getSystemSettingsService();
     }
 
     setScore(score) {
         document.querySelector('#reviewScore').innerText = score;
     }
+
+    async show() {
+        await super.show();
+        this.settingsService.showSystemSettings();
+    }
+
+    async hide() {
+        await super.hide();
+        this.settingsService.hideSystemSettings();
+    }
+    
 }
