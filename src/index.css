@@ -156,3 +156,19 @@ img {
 .hidden {
     display:none;
 }
+
+#splashScreen button{
+    font-weight: bold;
+    font-size: 3vh;
+    color: white;
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 13vh;
+    text-align: center;
+    animation-name: pulse;
+    animation-duration: 3s;
+    animation-iteration-count: infinite;
+    -webkit-transition: text-shadow 0.4s linear;
+    transition: text-shadow 0.4s linear;
+}

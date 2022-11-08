@@ -1,4 +1,5 @@
 import { Howl } from "howler";
+import {sleep } from "./util";
 
 /**
  * Handles loading and playing sound assets in an Oooh module
