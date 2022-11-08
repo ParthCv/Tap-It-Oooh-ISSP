@@ -65,13 +65,13 @@ button {
     flex-direction: column;
 }
 
-/* #timer{
+#timer{
     margin-top: -50px;
-} */
+}
 
 
 #gameplayScreen {
-
+    
     padding-top: 25vw;
 }
 
@@ -81,17 +81,17 @@ button {
 }
 
 #game-button {
-    position: relative;
-    width: 10vh;
+    /* position: relative; */
+    /* width: 10vh;
     font-family: sans-serif;
     background: #F83;
     padding: 30px;
     border-radius: 100px;
     font-size: 30px;
     display: inline-block;
-    color: #FFF;
+    color: #FFF; */
     margin-bottom: var(--button-margin);
-    margin-left: 50%;
+    /* margin-left: 50%;
     margin-right: 50%;
     letter-spacing: 2px;
     border: 1px solid rgba(0,0,0,.1);
@@ -99,7 +99,7 @@ button {
     background: linear-gradient(to bottom, #F64, #F66);
     box-shadow: 0 10px 30px rgba(255,100,100, .5), 0 20px 100px 10px rgba(255,100,100, .5);
     transition: all .25s;
-    cursor: pointer; 
+    cursor: pointer;  */
 }
 
 

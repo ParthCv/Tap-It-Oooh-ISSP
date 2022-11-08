@@ -13,76 +13,77 @@ export default class GameplayScreen extends ScreenBase {
         this.layoutName = consts.LAYOUTS.FULL_SCREEN_CAMERA;
 
         this.preloadList.addLoad(() => LayoutManagerInstance.createEmptyLayout());
+
+
+
         this.preloadList.addLoad(async () => {
             await LayoutManagerInstance.createFullScreenCameraLayout();
             this.fullscreenRecorder = await this.runtime.getControlManager().getFullScreenRecorder();
         });
 
+
         this.hostElement = document.querySelector('#gameplayScreen');
+    }
 
-        this.score = 0;
-
-        this.button = document.getElementById("game-button");
-        this.scoreElement = document.getElementById("score");
+    async show() {
+        await super.show();
+        this.camera = LayoutManagerInstance.cameraComponent;
     }
 
     async onShowing() {
-
         console.log("game screen");
-        this.hostElement.classList.remove('hidden');
 
-        let timer = 5;
-
+        this.camera.startRecording();
         this.fullscreenRecorder.startRecording();
 
-        const onclick_handler = () => {
-            this.score += 1;
-            this.scoreElement.innerHTML = "Score:" + "  "+ this.score + "";
-        };
+        let button = document.getElementById("game-button");
+        let scoreElement = document.getElementById("score");
 
-        const move_around = () => {
-            var x = Math.floor(Math.random() * 500);
-            var y = Math.floor(Math.random() * 500);
-            this.button.style.left = x + "px";
-            this.button.style.top = y + "px";
-        };
+        let score = 0;
 
-        this.button.onclick = onclick_handler; move_around();
+        let startedGame = false;
+        let endGame = false;
 
-        var started = true;
-        this.button.addEventListener('click', function() {
-            console.log(timer);
-            if (started){
-            var myInterval = window.setInterval(function(){
-            if (timer > 0)
-                timer--;
-                document.getElementById("timer").innerHTML = "Timer: " + timer + "";
+        let endGamefunction = this.finishGame;
 
-            if (timer <= 0) {
-                console.log("Timer is at 0!");
-                document.getElementById("game-button").setAttribute("disabled", "");
-                clearInterval(myInterval);
-                console.log("Supposed to leave gameplay!");
-                this.mainApp.leaveGamePlay();
-            }
-            }, 1000);
-            started = false;
-            }
+        async function startTimer(ms) {
+            let startTime = new Date().getTime();
+            let timerId = setInterval(async function() {
+                let total = new Date().getTime() - startTime;
+                let difference = ms - total;
+                if (total < ms) {
+                    document.getElementById("timer").innerHTML = "Timer: " + Math.floor(difference/1000);
+                } else {
+                    document.getElementById("timer").innerHTML = "Timer: 0";
+                    endGame = true;
+                    clearInterval(timerId);
+                    endGamefunction(score);
+                }
+            }, 1);
+        }         
+
+        button.addEventListener("click", function() {
             SoundManagerInstance.playSound(SOUNDS.SFX_BUTTON_TAP);
-        });
+            if(!startedGame) { 
+                startTimer(5000);
+                startedGame = true;
+            } else if (!endGame) {
+                scoreElement.innerHTML = "Score: " + ++score;
+            }
+        })
     }
 
-    // show() {
-    //     super.show();
-    //     // Shows the camera and audio on/off toggles to the user
-    //     this.app.systemSettingsService.showSystemSettings();
-    // }
 
-    // hide() {        
-    //     super.hide();
+    async finishGame(score) {
+        const camRecording = await this.camera.stopRecording();
+        const fullScreenRecording = await this.fullscreenRecorder.stopRecording();
 
-    //     // Set that the tutorial has been seen for this play mode
-    //     const playMode = isCreatorMode() ? "creator" : "audience";
-    //     PersistentDataManagerInstance.setSettingsDataProperty(`${playMode}_tutorial`, true);
-    // }
+        let replayData = null;
+        if (this.isCreatorMode) {
+            replayData = await this.replayRecorder.getReplayData();
+            console.dir(replayData);
+        }
+
+        this.mainApp.leaveGameplay(fullScreenRecording, camRecording, replayData, score);
+    }
 }

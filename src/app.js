@@ -10,7 +10,7 @@ import LayoutManagerInstance from "./layoutManager";
 import ScreenManagerInstance from "./screenManager";
 import Leaderboard from "./libs/leaderboard";
 import SoundManagerInstance from './soundManager';
-import VsScreen from "./screens/vsScreen";
+// import VsScreen from "./screens/vsScreen";
 import * as util from "./util";
 
 export default class App {
@@ -36,11 +36,13 @@ export default class App {
         this.isCreatorMode = util.isCreatorMode(o3h);
         this.isAudienceMode = util.isAudienceMode(o3h);
 
+        this.pregameLeaderboardScreen = new AudiencePregameLeaderboard(o3h, this);
+
         // these 2 screens only happen in audience mode
         if (this.isAudienceMode){
-            this.pregameLeaderboardScreen = new AudiencePregameLeaderboard(o3h, this);
-            this.vsScreen = new VsScreen(o3h, this);
-            // this.scoreCompareScreen = new ScoreComparisonScreen(o3h, this);
+            // this.pregameLeaderboardScreen = new AudiencePregameLeaderboard(o3h, this);
+            // this.vsScreen = new VsScreen(o3h, this);
+            this.scoreCompareScreen = new ScoreComparisonScreen(o3h, this);
         }
 
         this.listPreloader = new PreloadListLoader();
@@ -54,18 +56,18 @@ export default class App {
         // need to init each screen. pregameLeaderboard and scoreCompare only happen in audience mode.
         const allScreens = []
         allScreens.push(this.splashScreen);
-        if (this.isAudienceMode) {
-            allScreens.push(this.pregameLeaderboardScreen);
-        }
-        allScreens.push(this.tutorialScreen);
-        if (this.isAudienceMode) {
-            allScreens.push(this.vsScreen);
-        }
-        allScreens.push(this.gameplayScreen);
         // if (this.isAudienceMode) {
-        //     allScreens.push(this.scoreCompareScreen);
+            allScreens.push(this.pregameLeaderboardScreen);
         // }
-        // allScreens.push(this.reviewScreen);
+        allScreens.push(this.tutorialScreen);
+        // if (this.isAudienceMode) {
+        //     allScreens.push(this.vsScreen);
+        // }
+        allScreens.push(this.gameplayScreen);
+        if (this.isAudienceMode) {
+            allScreens.push(this.scoreCompareScreen);
+        }
+        allScreens.push(this.reviewScreen);
 
         allScreens.forEach((s) => {
             ScreenManagerInstance.addScreen(s)
