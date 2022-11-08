@@ -1,6 +1,6 @@
 import ScreenManagerInstance from "./screenManager";
 import RecordingManagerInstance from "./recordingManager";
-import SoundManagerInstance from "../soundManager";
+import SoundManagerInstance from "./soundManager";
 
 import SplashScreen from "./screens/splashScreen";
 import TutorialScreen from "./screens/tutorialScreen";
@@ -66,6 +66,12 @@ export default class TapItController {
     async showTutorial() {
         console.log("TapItController.showTutorial()");
         await ScreenManagerInstance.showScreen(this.tutorialScreen);
+    }
+
+    // Show the leaderboard screen
+    async showLeaderboard() {
+        console.log("TapItController.showLeaderboard()");
+        await ScreenManagerInstance.showScreen(this.leaderboardScreen);
     }
 
 }

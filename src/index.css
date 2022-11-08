@@ -172,3 +172,10 @@ img {
     -webkit-transition: text-shadow 0.4s linear;
     transition: text-shadow 0.4s linear;
 }
+
+#leaderboard {
+    background-color: black;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+}

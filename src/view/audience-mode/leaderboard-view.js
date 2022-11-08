@@ -1,4 +1,4 @@
-import { ACHIEVEMENT_TYPE, LeaderboardData } from '../../leaderboardData.js';
+import { ACHIEVEMENT_TYPE, LeaderboardData } from '../../leaderboardDataManager.js';
 import { count } from '../../button.js';
 
 const leaderboardData = new LeaderboardData();
