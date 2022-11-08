@@ -22,11 +22,19 @@ export default class AudiencePregameLeaderboard extends ScreenBase {
             SoundManagerInstance.playSound(SOUNDS.SFX_BUTTON_TAP);
             this.mainApp.goToTutorial();
         }
+
+        this.settingsService = this.runtime.getSystemSettingsService();
     }
 
     async show() {
         await super.show();
         const leaderboardContainer = document.querySelector('#pregameLeaderboard .leaderboard-container');
         await mainApp.leaderboard.showPreGame(leaderboardContainer);
+        this.settingsService.showSystemSettings();
+    }
+
+    async hide() {
+        await super.hide();
+        this.settingsService.hideSystemSettings();
     }
 }

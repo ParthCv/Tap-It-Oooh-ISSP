@@ -5,7 +5,7 @@ import {PreloadListLoader} from "./libs/Preloader";
 import GameplayScreen from "./screens/gameplayScreen";
 import ReviewScreen from "./screens/reviewScreen";
 import AudiencePregameLeaderboard from "./screens/audiencePregameLeaderboard";
-// import ScoreComparisonScreen from "./screens/scoreComparison";
+import ScoreComparisonScreen from "./screens/scoreComparison";
 import LayoutManagerInstance from "./layoutManager";
 import ScreenManagerInstance from "./screenManager";
 import Leaderboard from "./libs/leaderboard";

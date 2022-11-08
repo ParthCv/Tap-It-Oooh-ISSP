@@ -28,11 +28,23 @@ export default class TutorialScreen extends ScreenBase {
             SoundManagerInstance.playSound(SOUNDS.SFX_BUTTON_TAP);
             this.mainApp.leaveTutorialScreen();
         }
+
+        this.settingsService = this.runtime.getSystemSettingsService();
     }
 
     async onShowing() {
         console.log("Showing Tutorial");
         this.hostElement.classList.remove('hidden');
+    }
+
+    async show() {
+        await super.show();
+        this.settingsService.showSystemSettings();
+    }
+
+    async hide() {
+        await super.hide();
+        this.settingsService.hideSystemSettings();
     }
 
     // show() {
