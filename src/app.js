@@ -13,6 +13,7 @@ import SoundManagerInstance from './soundManager';
 import VsScreen from "./screens/vsScreen";
 import * as util from "./util";
 import { ACHIEVEMENT_TYPE, LeaderboardData, MockO3H } from './libs/leaderboard';
+import Leaderboard from './libs/leaderboard_temp';
 
 //create a new testa data for Mock03H class
 const mockUser = {
@@ -49,8 +50,9 @@ export default class App {
         // ScreenManagerInstance.setAnalyticService(this.runtime.getAnalyticService());
 
         this.score = 0;
-        const leaderboard = new LeaderboardData();
+        // const leaderboard = new LeaderboardData();
         // this.leaderboard = new LeaderboardData();
+        this.leaderboard = new Leaderboard(o3h);
 
 
         this.splashScreen = new SplashScreen(o3h, this);

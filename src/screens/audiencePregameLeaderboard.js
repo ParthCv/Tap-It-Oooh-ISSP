@@ -13,7 +13,8 @@ export default class AudiencePregameLeaderboard extends ScreenBase {
             await LayoutManagerInstance.createTopHalfCameraLayout();
         });
         this.preloadList.addLoad(async () => {
-            mainApp.leaderboard.initialize(o3h.Instance);
+            // mainApp.leaderboard.initialize();
+            await mainApp.leaderboard.preloadData();
         });
 
         this.hostElement = document.querySelector('#pregameLeaderboard');
@@ -26,6 +27,13 @@ export default class AudiencePregameLeaderboard extends ScreenBase {
     async show() {
         await super.show();
         const leaderboardContainer = document.querySelector('#pregameLeaderboard .leaderboard-container');
-        await mainApp.leaderboard.getPodiumEntires();
+        // await mainApp.leaderboard.getPodiumEntires();
+        await mainApp,leaderboard.showPreGame(leaderboardContainer);
+        this.settingsSerive.showSystemSettings();
+    }
+
+    async hide(){
+        await super.hide();
+        this.settingsSerive.hideSystemSettings();
     }
 }
