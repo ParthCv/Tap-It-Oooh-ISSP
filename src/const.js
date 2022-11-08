@@ -36,6 +36,11 @@ module.exports.COMPONENTS = {
     VIDEO: 'video'
 }
 
+module.exports.SOUNDS = {
+    SFX_BUTTON_TAP: "./sounds/SFX_Button_Tap.mp3",
+    BG_MUSIC: "./sounds/MUS_TapIt_Theme.mp3"
+}
+
 module.exports.INPUT_OUTPUT_ASSETS = {
     OUTPUT_CAMERA: 'outputCameraCreator',
     OUTPUT_FULLSCREEN_RECORDING: 'outputFullscreenRecording',

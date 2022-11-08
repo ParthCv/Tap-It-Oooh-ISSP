@@ -1,4 +1,4 @@
-import {INPUT_OUTPUT_ASSETS, SCREENS, HAVE_WATCHED_TUTORIAL_SETTING} from "./const";
+import {INPUT_OUTPUT_ASSETS, SCREENS, HAVE_WATCHED_TUTORIAL_SETTING, SOUNDS} from "./const";
 import SplashScreen from "./screens/splashScreen";
 import TutorialScreen from "./screens/tutorialScreen";
 import {PreloadListLoader} from "./libs/Preloader";
@@ -9,6 +9,7 @@ import AudiencePregameLeaderboard from "./screens/audiencePregameLeaderboard";
 import LayoutManagerInstance from "./layoutManager";
 import ScreenManagerInstance from "./screenManager";
 import Leaderboard from "./libs/leaderboard";
+import SoundManagerInstance from './soundManager';
 import VsScreen from "./screens/vsScreen";
 import * as util from "./util";
 
@@ -75,7 +76,7 @@ export default class App {
 
         // show the initial screen
         await ScreenManagerInstance.showScreen(SCREENS.SPLASH);
-
+        SoundManagerInstance.playSound(SOUNDS.BG_MUSIC);
         // this will tell the client to show our app
         this.runtime.ready(this.onAppShowing);
     }

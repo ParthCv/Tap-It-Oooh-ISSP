@@ -1,5 +1,6 @@
-import {LAYOUTS, SCREENS} from "../const";
+import {LAYOUTS, SCREENS, SOUNDS} from "../const";
 import ScreenBase from "./screenBase";
+import SoundManagerInstance from "../soundManager";
 import LayoutManagerInstance from "../layoutManager";
 
 export default class SplashScreen extends ScreenBase {
@@ -12,6 +13,7 @@ export default class SplashScreen extends ScreenBase {
 
         this.preloadList.addHttpLoad('./fonts/Gotham-UltraItalic.otf');
         this.preloadList.addHttpLoad('./images/screens/splash.png');
+        this.preloadList.addLoad(() => SoundManagerInstance.loadSound(SOUNDS.BG_MUSIC));
 
         this.hostElement = document.querySelector('#splashScreen');
         this.hostElement.onclick = () => {
@@ -23,6 +25,7 @@ export default class SplashScreen extends ScreenBase {
 
     async show() {
         await super.show();
+        SoundManagerInstance.playSound(SOUNDS.BG_MUSIC);
         this.settingsService.showSystemSettings();
     }
 

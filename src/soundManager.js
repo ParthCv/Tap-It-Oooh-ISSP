@@ -1,12 +1,26 @@
 import { Howl } from "howler";
-import { sleep } from "./util";
+import {sleep} from "./util";
 
+/**
+ * Handles loading and playing sound assets in an Oooh module
+ * Learn more: https://docs.oooh.io/docs/audio
+ */
 class SoundManager {
     constructor() {
         // A map of strings to the sound object
         this.soundsByPath = new Map();
     }
 
+    /**
+     * Loads a sound asset to be used in a module
+     * 
+     * @param {string} soundPath - The path to the sound asset
+     * @param {boolean} o3hAudio - Whether the sound should be loaded using Oooh or Howler (HTML5 audio polyfill)
+     * @param {boolean} looping - Whether the sound should loop
+     * @param {number} pool - If using Howler, the size of the inactive sounds pool
+     * 
+     * @returns {Promise<void>} - A Promise that resolves when the sound has loaded, use this when pre-loading
+     */
     loadSound(soundPath, o3hAudio = false, looping = false, pool = 5) {
         if (this.soundsByPath.has(soundPath)) {
             return this.soundsByPath.get(soundPath).loading();
@@ -25,6 +39,7 @@ class SoundManager {
         return this.soundsByPath.get(soundPath).loading();
     }
 
+    // Plays a sound asset that has already been created
     async playSound(soundPath) {
         const sound = this.soundsByPath.get(soundPath);
         if (sound) {
@@ -32,6 +47,7 @@ class SoundManager {
         }
     }
 
+    // Stops a sound asset that has already been created
     async stopSound(soundPath) {
         const sound = this.soundsByPath.get(soundPath);
         if (sound) {
@@ -39,6 +55,7 @@ class SoundManager {
         }
     }
 
+    // Stops and unloads a sound asset that has already been created
     unloadSound(soundPath) {
         const sound = this.soundsByPath.get(soundPath);
         if (sound) {
@@ -48,6 +65,7 @@ class SoundManager {
         }
     }
 
+    // Sets the volume of a sound asset that has already been created
     setVolume(soundPath, volume) {
         const sound = this.soundsByPath.get(soundPath);
         if (sound) {
@@ -55,6 +73,7 @@ class SoundManager {
         }
     }
 
+    // Sets whether a sound asset that has already been created should loop or not
     setLooping(soundPath, looping) {
         const sound = this.soundsByPath.get(soundPath);
         if (sound) {
@@ -63,6 +82,7 @@ class SoundManager {
     }
 }
 
+// A class which encapsulates Howler Howl functionality
 class HowlerSound {
     constructor(soundPath, looping = false, pool = 5) {
         // Use Howler
@@ -113,6 +133,7 @@ class HowlerSound {
     }
 }
 
+// A class which encapsulates Oooh AudioClip functionality
 class O3hSound {
     constructor(soundPath, looping = false, audioManager) {
         this.audioClipPromise = audioManager.load(soundPath);
