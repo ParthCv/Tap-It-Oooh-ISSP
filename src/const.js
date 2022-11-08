@@ -14,6 +14,7 @@ module.exports.HAVE_WATCHED_TUTORIAL_SETTING = 'haveWatchedTutorial';
 module.exports.SCREENS = {
     SPLASH: 'splash',
     PREGAME_LEADERBOARD: 'pregameLeaderboard',
+    POSTGAME_LEADERBOARD: 'postgameLeaderboard',
     TUTORIAL: 'tutorial',
     VS: 'vs',
     GAMEPLAY: 'gameplay',

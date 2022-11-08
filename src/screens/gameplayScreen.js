@@ -60,6 +60,7 @@ export default class GameplayScreen extends ScreenBase {
                     document.getElementById("timer").innerHTML = "Timer: 0";
                     endGame = true;
                     clearInterval(timerId);
+                    // this.mainApp.endModule(score);
 
                     this.mainApp.leaveGameplay(score);
                     // await endGamefunction(score);
@@ -74,6 +75,10 @@ export default class GameplayScreen extends ScreenBase {
                 startedGame = true;
             } else if (!endGame) {
                 scoreElement.innerHTML = "Score: " + ++score;
+            }
+
+            if(endGame){
+                button.disabled = true;
             }
         })
     }

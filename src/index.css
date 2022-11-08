@@ -231,6 +231,10 @@ button {
     margin-top: 38.5vh;
 }
 
+#postgameLeaderboard .o3h-leaderboard {
+    margin-top: 38.5vh;
+}
+
 #scoreCompareScreen .o3h-leaderboard {
     margin-top: 52vh;
 }
