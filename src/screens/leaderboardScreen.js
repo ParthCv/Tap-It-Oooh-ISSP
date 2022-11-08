@@ -5,6 +5,8 @@ import { isCreatorMode } from "../util";
 
 import LayoutManagerInstance from "../layoutManager";
 import SoundManagerInstance from "../soundManager";
+import { ACHIEVEMENT_TYPE, LeaderboardData } from './leaderboardDataManager.js';
+
 
 export default class LeaderboardScreen extends ScreenBase {
     constructor(app) {
