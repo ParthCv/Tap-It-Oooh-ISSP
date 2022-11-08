@@ -1,4 +1,4 @@
-import {sleepProg, hideElement, showElement} from './utils'
+import {sleepProg, hideElement, showElement, wait} from './utils'
 
 const GameState = Object.freeze({
     Boot: 'Boot',
@@ -89,6 +89,9 @@ export default class TapItController {
 
     async gameOver(){
         try{
+            this.runtime.completeModule(exitCondition);
+
+            this.switchState(GameState.GameLeaderboard);
             this.screenVideoAsset = await this.fullScreenRecorder.stopRecording();
             this.cameraVideoAsset = await this.cameraComponent.stopRecording();
             this.saveRecording();
@@ -112,7 +115,7 @@ export default class TapItController {
                 score: this.totalScore
             };
 
-            this.runtime.completeModule(exitCondition);
+            // this.runtime.completeModule(exitCondition);
         } catch (error) {
             console.log("Error during save recording: " + error.message);
         }
@@ -229,8 +232,8 @@ export default class TapItController {
         var score = document.getElementById("score");
 
         const onclick_handler = () => {
-            count += 1;
-            score.innerHTML = "Score:" + "  "+ count + "";
+            this.totalScore += 1;
+            score.innerHTML = "Score:" + "  "+ this.totalScore + "";
         };
 
         const move_around = () => {
@@ -241,9 +244,10 @@ export default class TapItController {
         };
 
         counter.onclick = onclick_handler; move_around();
-        var timer = 60;
+        var timer = 5;
 
         var started = true;
+        var done = false;
         counter.addEventListener('click', function() {
             console.log(timer);
             if (started){
@@ -252,16 +256,21 @@ export default class TapItController {
                 timer--;
                 document.getElementById("timer").innerHTML = "Timer: " + timer;
             if (timer <= 0) {
+                done = true;
                 counter.setAttribute("disabled", "");
                 clearInterval(myInterval);
+                //exit eventlistner
             }
             }, 1000);
             started = false;
-        }
+            
+            }
         });
-        // document.getElementById("button").onclick = () => {
-        //     this.switchState(GameState.GameLeaderboard);
-        // }
+        document.getElementById("testbutton").onclick = () => {
+            this.switchState(GameState.GameLeaderboard);
+        }
+        //when timer becomes 0, switch to leaderboard
+    
     }
 
     async enterLeaderboardState() {
@@ -284,12 +293,12 @@ export default class TapItController {
 
             // this.bodyPoseTracker.stop();
 
-            // const exitCondition = {
-            //     score: this.totalScore
-            // };
+            const exitCondition = {
+                score: this.totalScore
+            };
 
-            // this.runtime.completeModule(exitCondition);
-            this.gameOver();
+            this.runtime.completeModule(exitCondition);
+            // this.gameOver();
         };
 
         document.getElementById("retrybutton").onclick = async () => {
