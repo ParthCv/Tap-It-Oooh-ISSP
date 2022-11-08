@@ -3,13 +3,13 @@ import SplashScreen from "./screens/splashScreen";
 import TutorialScreen from "./screens/tutorialScreen";
 import {PreloadListLoader} from "./libs/Preloader";
 import GameplayScreen from "./screens/gameplayScreen";
-// import ReviewScreen from "./screens/reviewScreen";
-// import AudiencePregameLeaderboard from "./screens/audiencePregameLeaderboard";
+import ReviewScreen from "./screens/reviewScreen";
+import AudiencePregameLeaderboard from "./screens/audiencePregameLeaderboard";
 // import ScoreComparisonScreen from "./screens/scoreComparison";
 import LayoutManagerInstance from "./layoutManager";
 import ScreenManagerInstance from "./screenManager";
-// import Leaderboard from "./libs/leaderboard";
-// import VsScreen from "./screens/vsScreen";
+import Leaderboard from "./libs/leaderboard";
+import VsScreen from "./screens/vsScreen";
 import * as util from "./util";
 
 export default class App {
@@ -22,22 +22,23 @@ export default class App {
         // ScreenManagerInstance.setAnalyticService(this.runtime.getAnalyticService());
 
         this.score = 0;
-        // this.leaderboard = new Leaderboard(o3h);
+        this.leaderboard = new Leaderboard(o3h);
 
         this.splashScreen = new SplashScreen(o3h, this);
         this.tutorialScreen = new TutorialScreen(o3h, this);
-        // this.vsScreen = new VsScreen(o3h, this);
-        this.gameplayScreen = new GameplayScreen(o3h, this);
-        // this.reviewScreen = new ReviewScreen(o3h, this);
 
-        // this.isCreatorMode = util.isCreatorMode(o3h);
-        // this.isAudienceMode = util.isAudienceMode(o3h);
+        this.gameplayScreen = new GameplayScreen(o3h, this);
+        this.reviewScreen = new ReviewScreen(o3h, this);
+
+        this.isCreatorMode = util.isCreatorMode(o3h);
+        this.isAudienceMode = util.isAudienceMode(o3h);
 
         // these 2 screens only happen in audience mode
-        // if (this.isAudienceMode){
-        //     this.pregameLeaderboardScreen = new AudiencePregameLeaderboard(o3h, this);
-        //     this.scoreCompareScreen = new ScoreComparisonScreen(o3h, this);
-        // }
+        if (this.isAudienceMode){
+            this.pregameLeaderboardScreen = new AudiencePregameLeaderboard(o3h, this);
+            this.vsScreen = new VsScreen(o3h, this);
+            // this.scoreCompareScreen = new ScoreComparisonScreen(o3h, this);
+        }
 
         this.listPreloader = new PreloadListLoader();
 
@@ -50,13 +51,13 @@ export default class App {
         // need to init each screen. pregameLeaderboard and scoreCompare only happen in audience mode.
         const allScreens = []
         allScreens.push(this.splashScreen);
-        // if (this.isAudienceMode) {
-        //     allScreens.push(this.pregameLeaderboardScreen);
-        // }
+        if (this.isAudienceMode) {
+            allScreens.push(this.pregameLeaderboardScreen);
+        }
         allScreens.push(this.tutorialScreen);
-        // if (this.isAudienceMode) {
-        //     allScreens.push(this.vsScreen);
-        // }
+        if (this.isAudienceMode) {
+            allScreens.push(this.vsScreen);
+        }
         allScreens.push(this.gameplayScreen);
         // if (this.isAudienceMode) {
         //     allScreens.push(this.scoreCompareScreen);
@@ -84,12 +85,12 @@ export default class App {
     }
 
     async leaveSplashScreen() {
-        // if (this.isAudienceMode) {
-        //     await this.goToPregameLeaderboard();
-        // }
-        // else {
+        if (this.isAudienceMode) {
+            await this.goToPregameLeaderboard();
+        }
+        else {
             await this.goToTutorial();
-        // }
+        }
     }
 
     async goToPregameLeaderboard() {
@@ -153,16 +154,16 @@ export default class App {
         }
     }
 
-    // async goToReview() {
-    //     const assetManager = this.runtime.getAssetManager();
-    //     assetManager.addToOutput(INPUT_OUTPUT_ASSETS.OUTPUT_FULLSCREEN_RECORDING, this.fullScreenRecording);
-    //     assetManager.addToOutput(INPUT_OUTPUT_ASSETS.OUTPUT_CAMERA, this.camRecording);
-    //     if (this.isCreatorMode) {
-    //         assetManager.addToOutput(INPUT_OUTPUT_ASSETS.OUTPUT_REPLAY_DATA, this.replayData);
-    //     }
+    async goToReview() {
+        const assetManager = this.runtime.getAssetManager();
+        assetManager.addToOutput(INPUT_OUTPUT_ASSETS.OUTPUT_FULLSCREEN_RECORDING, this.fullScreenRecording);
+        assetManager.addToOutput(INPUT_OUTPUT_ASSETS.OUTPUT_CAMERA, this.camRecording);
+        if (this.isCreatorMode) {
+            assetManager.addToOutput(INPUT_OUTPUT_ASSETS.OUTPUT_REPLAY_DATA, this.replayData);
+        }
 
-    //     await ScreenManagerInstance.showScreen(SCREENS.REVIEW);
-    // }
+        await ScreenManagerInstance.showScreen(SCREENS.REVIEW);
+    }
 
     async endModule() {
         this.runtime.completeModule({ score: this.score });

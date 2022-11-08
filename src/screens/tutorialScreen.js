@@ -16,6 +16,9 @@ export default class TutorialScreen extends ScreenBase {
         this.layoutName = consts.LAYOUTS.HTML_ONLY;
         this.preloadList.addLoad(() => LayoutManagerInstance.createEmptyLayout());
 
+
+        this.preloadList.addHttpLoad('./images/screens/bg.png');
+
         this.hostElement = document.querySelector('#tutorialScreen');
         this.nextButton = document.querySelector('#tutorialScreen button');
 

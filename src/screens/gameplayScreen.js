@@ -49,8 +49,10 @@ export default class GameplayScreen extends ScreenBase {
                 document.getElementById("timer").innerHTML = "Timer: " + timer + "";
 
             if (timer <= 0) {
-                this.button.setAttribute("disabled", "");
+                console.log("Timer is at 0!");
+                document.getElementById("game-button").setAttribute("disabled", "");
                 clearInterval(myInterval);
+                console.log("Supposed to leave gameplay!");
                 this.mainApp.leaveGamePlay();
             }
             }, 1000);

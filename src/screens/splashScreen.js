@@ -10,7 +10,8 @@ export default class SplashScreen extends ScreenBase {
         this.layoutName = LAYOUTS.HTML_ONLY;
         this.preloadList.addLoad(async () => { await LayoutManagerInstance.createEmptyLayout(); });
 
-        this.preloadList.addHttpLoad('./images/screens/splash.jpg');
+        this.preloadList.addHttpLoad('./fonts/Gotham-UltraItalic.otf');
+        this.preloadList.addHttpLoad('./images/screens/splash.png');
 
         this.hostElement = document.querySelector('#splashScreen');
         this.hostElement.onclick = () => {
