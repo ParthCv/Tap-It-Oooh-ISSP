@@ -5,6 +5,7 @@ import {PreloadListLoader} from "./libs/Preloader";
 import GameplayScreen from "./screens/gameplayScreen";
 import ReviewScreen from "./screens/reviewScreen";
 import AudiencePregameLeaderboard from "./screens/audiencePregameLeaderboard";
+import AudiencePostgameLeaderboard from './screens/audiencePostgameLeaderboard';
 import ScoreComparisonScreen from "./screens/scoreComparison";
 import LayoutManagerInstance from "./layoutManager";
 import ScreenManagerInstance from "./screenManager";
@@ -38,6 +39,7 @@ export default class App {
         this.isAudienceMode = util.isAudienceMode(o3h);
 
         this.pregameLeaderboardScreen = new AudiencePregameLeaderboard(o3h, this);
+        this.postgameLeaderboardScreen = new AudiencePostgameLeaderboard(o3h, this);
 
         // these 2 screens only happen in audience mode
         if (this.isAudienceMode){
@@ -66,7 +68,9 @@ export default class App {
         // }
         allScreens.push(this.gameplayScreen);
         if (this.isAudienceMode) {
-            allScreens.push(this.scoreCompareScreen);
+            // allScreens.push(this.scoreCompareScreen);
+            allScreens.push(this.postgameLeaderboardScreen);
+
         }
         allScreens.push(this.reviewScreen);
 
@@ -159,10 +163,10 @@ export default class App {
             this.goToReview();
         }
         else {
-            await ScreenManagerInstance.showScreen(SCREENS.SCORE_COMPARE);
+            // await ScreenManagerInstance.showScreen(SCREENS.SCORE_COMPARE);
+            this.goToPostgameLeaderboard();
         }
     }
-
     async goToReview() {
         // const assetManager = this.runtime.getAssetManager();
         // assetManager.addToOutput(INPUT_OUTPUT_ASSETS.OUTPUT_FULLSCREEN_RECORDING, this.fullScreenRecording);
@@ -172,6 +176,9 @@ export default class App {
         // }
 
         ScreenManagerInstance.showScreen(SCREENS.REVIEW);
+    }
+    async goToPostgameLeaderboard() {
+        await ScreenManagerInstance.showScreen(SCREENS.POSTGAME_LEADERBOARD);
     }
 
     async endModule() {
