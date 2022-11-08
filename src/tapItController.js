@@ -1,6 +1,6 @@
 import ScreenManagerInstance from "./screenManager";
 import RecordingManagerInstance from "./recordingManager";
-import SoundManagerInstance from "../soundManager";
+import SoundManagerInstance from "./soundManager";
 
 import SplashScreen from "./screens/splashScreen";
 import TutorialScreen from "./screens/tutorialScreen";
@@ -58,7 +58,7 @@ export default class TapItController {
         // Now your module is ready to show to the player!
         this.runtime.ready(() => {
             // Start splash screen animation, music, etc.
-
+            this.splashScreen.startBgMusic();
         });
     }
 

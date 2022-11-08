@@ -11,7 +11,6 @@ export default class SplashScreen extends ScreenBase {
 
         // Show the tutorial screen when the player taps to continue with the module
         document.querySelector("#splashScreen button").addEventListener("click", () => {
-            SoundManagerInstance.playSound(SOUNDS.BG_MUSIC);
             this.app.showTutorial();
         });
     
@@ -24,5 +23,9 @@ export default class SplashScreen extends ScreenBase {
         // Pre-loads an empty layout in Oooh
         this.preloadList.addLoad(() => LayoutManagerInstance.createEmptyLayout());
 
+    }
+
+    startBgMusic() {
+        SoundManagerInstance.playSound(SOUNDS.BG_MUSIC);
     }
 }
