@@ -13,10 +13,12 @@ export default class SplashScreen extends ScreenBase {
 
         this.preloadList.addHttpLoad('./fonts/Gotham-UltraItalic.otf');
         this.preloadList.addHttpLoad('./images/screens/splash.png');
+        this.preloadList.addLoad(() => SoundManagerInstance.loadSound(SOUNDS.SFX_BUTTON_TAP));
         this.preloadList.addLoad(() => SoundManagerInstance.loadSound(SOUNDS.BG_MUSIC));
 
         this.hostElement = document.querySelector('#splashScreen');
         this.hostElement.onclick = () => {
+            SoundManagerInstance.playSound(SOUNDS.SFX_BUTTON_TAP);
             this.mainApp.leaveSplashScreen();
         }
 
@@ -25,7 +27,6 @@ export default class SplashScreen extends ScreenBase {
 
     async show() {
         await super.show();
-        SoundManagerInstance.playSound(SOUNDS.BG_MUSIC);
         this.settingsService.showSystemSettings();
     }
 

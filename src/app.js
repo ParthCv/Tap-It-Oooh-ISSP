@@ -78,6 +78,7 @@ export default class App {
 
         // show the initial screen
         await ScreenManagerInstance.showScreen(SCREENS.SPLASH);
+        SoundManagerInstance.setVolume(0.3);
         SoundManagerInstance.playSound(SOUNDS.BG_MUSIC);
         // this will tell the client to show our app
         this.runtime.ready(this.onAppShowing);
