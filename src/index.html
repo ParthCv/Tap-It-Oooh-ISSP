@@ -3,8 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
+    <meta name="viewport" content="viewport-fit=cover"/>
+    <title>Tap It</title>
+    <style>
+        #titleScreen {background-image: url('./images/screens/splash.jpg');}
+    </style>
 </head>
 <body>
     <!-- <div class="container">
@@ -15,28 +18,38 @@
         <button id="track1">Track 1</button>
         <button id="track2">Track 2</button>
     </div> -->
-    <div id="titleScreen">
-        <div class="title"></div>
-        <div class="startText"><h3>Tap &nbsp; to &nbsp; start!</h3></div>
-    </div>
-    <div id="instructions">
-        <!-- <h1>Hello world</h1> -->
-        <button id = "start">Start</button>
-    </div>
-    <div id="game">
-            <span id="game_start_timer">3</span>
-            <div id = "timer" > Timer: 60</div>
-            <button id="button">Click</button>
-            <div id="score">Score: 0</div>
-            <!-- <button id = "mute">Mute</button>
-            <button id="track1">Track 1</button>
-            <button id="track2">Track 2</button> -->
-    </div>
-    <div id="leaderboard">
-        <h1>Leaderboard</h1>
-        <span id="finalscore"></span>
-        <button id="gameoverbutton">Game Over</button>
-        <button id="retrybutton">Retry</button>
+    <div id="screens">
+        <div id="loading" class="screen">
+        </div>
+        <div id="splashScreen" class="screen">
+            <button class="continue-button">Tap to Continue</button>
+        </div>
+        <div id="pregameLeaderboard" class="screen hidden">
+            <button>Next</button>
+        </div>
+        <div id="instructions" class="screen hidden">
+            <!-- <h1>Hello world</h1> -->
+            <h3>Instructions</h3>
+            <button id = "start">Start</button>
+        </div>
+        <div id="vsScreen" class="screen hidden">
+
+        </div>
+        <div id="game" class="screen hidden">
+                <span id="game_start_timer">3</span>
+                <div id = "timer" > Timer: 60</div>
+                <button id="button">Click</button>
+                <div id="score">Score: 0</div>
+                <!-- <button id = "mute">Mute</button>
+                <button id="track1">Track 1</button>
+                <button id="track2">Track 2</button> -->
+        </div>
+        <div id="leaderboard" class="screen hidden">
+            <h1>Leaderboard</h1>
+            <span id="finalscore"></span>
+            <button id="gameoverbutton">Game Over</button>
+            <button id="retrybutton">Retry</button>
+        </div>
     </div>
 </body>
 </html>
