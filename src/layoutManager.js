@@ -119,11 +119,13 @@ class LayoutManager {
 
     async createFullScreenCameraLayout() {
         const cameraConfig = new this.o3h.CameraComponentConfig();
-        await this.createLayout(
+        const layout = await this.createLayout(
             LAYOUTS.FULL_SCREEN_CAMERA,
             getFullScreenLayout(this.o3h),
             {'main': cameraConfig},
             {'main': this.cameraComponent});
+
+        this.cameraComponent = layout.getComponent('main');
     }
 }
 

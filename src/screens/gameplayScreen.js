@@ -3,6 +3,7 @@ import {SOUNDS} from "../const";
 import ScreenBase from "./screenBase";
 import LayoutManagerInstance from "../layoutManager";
 import SoundManagerInstance from "../soundManager";
+import { isCreatorMode } from "../util";
 
 
 export default class GameplayScreen extends ScreenBase {
@@ -13,7 +14,6 @@ export default class GameplayScreen extends ScreenBase {
         this.layoutName = consts.LAYOUTS.FULL_SCREEN_CAMERA;
 
         this.fullscreenRecorder = null;
-        this.camera = null;
 
         this.assetManager = this.runtime.getAssetManager();
 
@@ -24,13 +24,14 @@ export default class GameplayScreen extends ScreenBase {
             this.fullscreenRecorder = await this.runtime.getControlManager().getFullScreenRecorder();
         });
 
-
         this.hostElement = document.querySelector('#gameplayScreen');
     }
 
     async show() {
         await super.show();
         this.camera = LayoutManagerInstance.cameraComponent;
+
+        // this.replayRecorder = await this.runtime.createReplayRecorder();
     }
 
     async onShowing() {
@@ -38,6 +39,10 @@ export default class GameplayScreen extends ScreenBase {
 
         this.camera.startRecording();
         this.fullscreenRecorder.startRecording();
+
+        let cameraInstance = this.camera;
+        let fullscreenRecorderInstance = this.fullscreenRecorder;
+        let mainAppInstance = this.mainApp;
 
         let button = document.getElementById("game-button");
         let scoreElement = document.getElementById("score");
@@ -62,8 +67,8 @@ export default class GameplayScreen extends ScreenBase {
                     clearInterval(timerId);
                     // this.mainApp.endModule(score);
 
-                    this.mainApp.leaveGameplay(score);
-                    // await endGamefunction(score);
+                    // this.mainApp.leaveGameplay(score);
+                    await endGamefunction(mainAppInstance, cameraInstance, fullscreenRecorderInstance, score);
                 }
             }, 1);
         }         
@@ -84,17 +89,19 @@ export default class GameplayScreen extends ScreenBase {
     }
 
 
-    async finishGame(score) {
-        console.log(this.camera); // undefined
-        const camRecording = await this.camera.stopRecording();
-        const fullScreenRecording = await this.fullscreenRecorder.stopRecording();
+    async finishGame(mainAppInstance, cameraInstance, fullScreenRecorderInstance, score) {
+        const camRecording = await cameraInstance.stopRecording();
+        const fullScreenRecording = await fullScreenRecorderInstance.stopRecording();
 
-        let replayData = null;
-        if (this.isCreatorMode) {
-            replayData = await this.replayRecorder.getReplayData();
-            console.dir(replayData);
-        }
+        // let replayData = null;
+        // if (isCreatorMode) {
+        //     replayData = await this.replayRecorder.getReplayData();
+        //     console.dir(replayData);
+        // }
 
-        this.mainApp.leaveGameplay(fullScreenRecording, camRecording, replayData, score);
+        // this.mainApp.leaveGameplay(fullScreenRecording, camRecording, replayData, score);
+
+        console.log(mainAppInstance);
+        mainAppInstance.leaveGameplay(fullScreenRecording, camRecording, score);
     }
 }

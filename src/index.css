@@ -361,3 +361,29 @@ button {
     flex-direction: column;
     text-align: center;
 }
+
+
+
+#reviewScreen #reviewScore {
+    margin-top: 75vh;
+    font-size: 6vh;
+    font-weight: bold;
+    color: var(--green);
+    text-shadow: var(--purple-shadow);
+    text-align: center;
+}
+
+#reviewScreen button {
+    width: 15vh;
+}
+
+#reviewScreen button#review_retry {
+    left: 2vh;
+    right: unset;
+    background: unset;
+}
+
+#reviewScreen button#review_done {
+    right: 2vh;
+    left: unset;
+}
