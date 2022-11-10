@@ -42,8 +42,8 @@ export default class GameplayScreen extends ScreenBase {
         let button = document.getElementById("game-button");
         let scoreElement = document.getElementById("score");
 
+        // let score = 0;
         let score = 0;
-
         let startedGame = false;
         let endGame = false;
 
@@ -80,6 +80,7 @@ export default class GameplayScreen extends ScreenBase {
             if(endGame){
                 button.disabled = true;
             }
+            localStorage.setItem("SCORE", score);
         })
     }
 
@@ -97,4 +98,7 @@ export default class GameplayScreen extends ScreenBase {
 
         this.mainApp.leaveGameplay(fullScreenRecording, camRecording, replayData, score);
     }
+
 }
+
+

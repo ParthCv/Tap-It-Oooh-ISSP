@@ -29,7 +29,8 @@ export default class AudiencePostgameLeaderboard extends ScreenBase {
     async show() {
         await super.show();
         const leaderboardContainer = document.querySelector('#postgameLeaderboard .leaderboard-container');
-        await mainApp.leaderboard.showPostGame(leaderboardContainer);
+        let score = localStorage.getItem('SCORE')
+        await mainApp.leaderboard.showPostGame(leaderboardContainer, score);
         this.settingsService.showSystemSettings();
     }
 
