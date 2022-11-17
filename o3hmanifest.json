@@ -12,10 +12,11 @@
         },
         "audience": {
             "required": [
-                "usesCameraComponent",
                 "usesFullScreenRecording"
             ],
-            "optional": []
+            "optional": [
+                "usesCameraComponent"
+            ]
         }
     },
     "creatorInputs": {},

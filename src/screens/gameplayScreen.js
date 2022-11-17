@@ -65,8 +65,10 @@ export default class GameplayScreen extends ScreenBase {
         this.camera.startRecording();
         this.fullscreenRecorder.startRecording();
 
-        this.video.playVideo();
-
+        if(this.isAudienceMode) {
+            this.video.playVideo();
+        }
+        
         let cameraInstance = this.camera;
         let fullscreenRecorderInstance = this.fullscreenRecorder;
         let mainAppInstance = this.mainApp;
@@ -120,7 +122,6 @@ export default class GameplayScreen extends ScreenBase {
         const camRecording = await cameraInstance.stopRecording();
         const fullScreenRecording = await fullScreenRecorderInstance.stopRecording();
 
-        console.log(mainAppInstance);
         mainAppInstance.leaveGameplay(fullScreenRecording, camRecording, score);
     }
 }
