@@ -1,31 +1,37 @@
+import {LAYOUTS, SCREENS, SOUNDS} from "../const";
 import ScreenBase from "./screenBase";
-
-import { LAYOUTS, SOUNDS } from "../const";
-
-import LayoutManagerInstance from "../layoutManager";
 import SoundManagerInstance from "../soundManager";
+import LayoutManagerInstance from "../layoutManager";
 
 export default class SplashScreen extends ScreenBase {
-    constructor(app) {
-        super("SplashScreen", document.querySelector("#splashScreen"), LAYOUTS.EMPTY_LAYOUT, app);
+    constructor(o3h, mainApp) {
+        super(o3h, mainApp);
 
-        // Show the tutorial screen when the player taps to continue with the module
-        document.querySelector("#splashScreen button").addEventListener("click", () => {
-            this.app.showTutorial();
-        });
-    
+        this.name = SCREENS.SPLASH;
+        this.layoutName = LAYOUTS.HTML_ONLY;
+        this.preloadList.addLoad(async () => { await LayoutManagerInstance.createEmptyLayout(); });
 
-        // Pre-loads the button tap sound effect
+        this.preloadList.addHttpLoad('./fonts/Gotham-UltraItalic.otf');
+        this.preloadList.addHttpLoad('./images/screens/splash.png');
+        this.preloadList.addLoad(() => SoundManagerInstance.loadSound(SOUNDS.SFX_BUTTON_TAP));
         this.preloadList.addLoad(() => SoundManagerInstance.loadSound(SOUNDS.BG_MUSIC));
 
-        // Fonts pre-loading in index.html
+        this.hostElement = document.querySelector('#splashScreen');
+        this.hostElement.onclick = () => {
+            SoundManagerInstance.playSound(SOUNDS.SFX_BUTTON_TAP);
+            this.mainApp.leaveSplashScreen();
+        }
 
-        // Pre-loads an empty layout in Oooh
-        this.preloadList.addLoad(() => LayoutManagerInstance.createEmptyLayout());
-
+        this.settingsService = this.runtime.getSystemSettingsService();
     }
 
-    startBgMusic() {
-        SoundManagerInstance.playSound(SOUNDS.BG_MUSIC);
+    async show() {
+        await super.show();
+        this.settingsService.showSystemSettings();
+    }
+
+    async hide() {
+        await super.hide();
+        this.settingsService.hideSystemSettings();
     }
 }

@@ -1,50 +1,122 @@
-export const SOUNDS = {
+module.exports.ONE_FRAME_MS = 33;
+module.exports.ONE_SECOND_MS = 1000;
+
+module.exports.VS_SCREEN_SHOW_TIME = 5000;
+
+module.exports.HAVE_WATCHED_TUTORIAL_SETTING = 'haveWatchedTutorial';
+
+// module.exports.REPLAY_DATA = {
+//     EVENT_LASER: 'laser',
+//     EVENT_SPAWN_CAT: 'spawnCat',
+//     PROPERTY_POINT_TRANSLATOR_CONFIG: 'pointTranslatorConfig',
+// }
+
+module.exports.SCREENS = {
+    SPLASH: 'splash',
+    PREGAME_LEADERBOARD: 'pregameLeaderboard',
+    POSTGAME_LEADERBOARD: 'postgameLeaderboard',
+    TUTORIAL: 'tutorial',
+    VS: 'vs',
+    GAMEPLAY: 'gameplay',
+    REVIEW: 'review',
+    SCORE_COMPARE: 'scoreComparison',
+    REACTION: 'reaction',
+}
+
+module.exports.LAYOUTS = {
+    HTML_ONLY: 'html_only',
+    CREATOR_CAMERA: 'creator_camera',
+    TOP_HALF_CAMERA: 'top_half_camera',
+    TOP_CAMERA_BOTTOM_VIDEO: 'top_camera_bottom_video',
+    CREATOR_AUDIENCE_CAMERA: 'creator_audience_camera',
+    FULL_SCREEN_VIDEO: 'full_screen_video',
+    FULL_SCREEN_CAMERA: 'full_screen_camera',
+}
+
+module.exports.COMPONENTS = {
+    VIDEO: 'video'
+}
+
+module.exports.SOUNDS = {
     SFX_BUTTON_TAP: "./sounds/SFX_Button_Tap.mp3",
     BG_MUSIC: "./sounds/MUS_TapIt_Theme.mp3"
-};
+}
 
-export const LAYOUTS = {
-    EMPTY_LAYOUT: "emptyLayout",
-    RECORDING_CAMERA: "recordingCamera",
-    REVIEW_VIDEO: "reviewVideo"
-};
+module.exports.INPUT_OUTPUT_ASSETS = {
+    OUTPUT_CAMERA: 'outputCameraCreator',
+    OUTPUT_FULLSCREEN_RECORDING: 'outputFullscreenRecording',
+    OUTPUT_REPLAY_DATA: 'outputReplayData',
+    INPUT_CREATOR_CAMERA: 'inputCameraCreator',
+    INPUT_REPLAY_DATA: 'inputReplayData',
+}
 
-// These assets must match the names configured in ./o3hmanifest.json
-export const ASSETS = {
-    VIDEO_RECORDING: "videoRecording"
-};
+module.exports.getCreatorCameraLayout = (o3h) => {
+    return {
+        childrenFlexDirection: o3h.Layout.Direction.Vertical,
+        children: [
+            {
+                id: 'top',
+                flexRatio: 1,
+            },
+            {
+                id: 'bottom',
+                flexRatio: 2,
+            }
+        ]
+    };
+}
 
-export const VIDEO_LENGTH = 30;
+module.exports.getEvenSplitLayout = (o3h) => {
+    return {
+        childrenFlexDirection: o3h.Layout.Direction.Vertical,
+        children: [
+            {
+                id: 'top',
+                flexRatio: 1,
+            },
+            {
+                id: 'bottom',
+                flexRatio: 1,
+            }
+        ]
+    };
+}
 
-export const PIP_POSITION = {
-    SIZE_X: 0.35,
-    SIZE_Y: 0.3,
-    OFFSET_X: -0.06,
-    OFFSET_Y: -0.15
-};
+module.exports.getCreatorAudienceLayout = (o3h) => {
+    return {
+        childrenFlexDirection: o3h.Layout.Direction.Vertical,
+        children: [
+            {
+                flexRatio: 1,
+                childrenFlexDirection: o3h.Layout.Direction.Horizontal,
+                children: [
+                    {
+                        id: 'topLeft',
+                        flexRatio: 1
+                    },
+                    {
+                        id: 'topRight',
+                        flexRatio: 1
+                    }
+                ]
+            },
+            {
+                id: 'bottom',
+                flexRatio: 2,
+            }
+        ]
+    }
+}
 
-export const getFullScreenLayout = () => ({
-    childrenFlexDirection: o3h.Layout.Direction.Vertical,
-    children: [
-        {
-            id: "main",
-            flexRatio: 1
-        }
-    ]
-});
+module.exports.getFullScreenLayout = (o3h) => {
+    return {
+        childrenFlexDirection: o3h.Layout.Direction.Vertical,
+        children: [
+            {
+                id: 'main',
+                flexRatio: 1,
+            }
+        ]
+    };
+}
 
-export const getPIPCameraLayout = () => ({
-    "children": [{
-        "id": "camera",
-        "anchor": o3h.Layout.Position.TopRight,
-        "pivot": o3h.Layout.Position.TopRight,
-        "size": {
-            "x": PIP_POSITION.SIZE_X,
-            "y": PIP_POSITION.SIZE_Y
-        },
-        "offset": {
-            "x": PIP_POSITION.OFFSET_X,
-            "y": PIP_POSITION.OFFSET_Y
-        }
-    }]
-});

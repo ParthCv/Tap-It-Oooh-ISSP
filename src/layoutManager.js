@@ -1,136 +1,130 @@
-import {
-    getFullScreenLayout, getPIPCameraLayout, LAYOUTS
-} from "./const";
+import {getCreatorAudienceLayout, getCreatorCameraLayout, getEvenSplitLayout, getFullScreenLayout, LAYOUTS} from "./const";
+import {wait} from "./util";
 
-/**
- * Handles creating and displaying layouts behind the module web view.
- * Learn more: https://docs.oooh.io/docs/using-layouts
+/*
+    Handles showing, hiding, and waiting for screens to be ready to change.
+
+    Further reading: https://docs.oooh.io/docs/controlling-layout#layout
  */
 class LayoutManager {
-    /**
-     * @constructor
-     */
     constructor() {
-        // A map of strings to the promise of the layout
+        this.activeLayoutName = null;
         this.layoutsByName = new Map();
+
+        // Reusing components is crucial to making your module run fast and efficient.
+        // We'll save off a reference to the camera when it is first created, so we can pass
+        // it to any other layouts that need a camera.
+        this.cameraComponent = null;
+
+        // if in audience mode, this will be where we play back the creator camera recording
+        this.creatorVideoComponent = null;
+
+        // this will hold the gameplay video for the user to review before submitting
+        this.reviewVideoComponent = null;
+
+        // don't overload client by creating layouts in parallel. Queue up the layouts.
+        this.createLayoutQueue = [];
     }
 
-    /**
-     * Creates a layout and returns a promise that resolves to it.
-     * API Reference: https://docs.oooh.io/docs/api-reference-layoutmanager#layoutmanagercreatelayout-method
-     * 
-     * @param {string} layoutName - The name of the layout
-     * @param {module:o3h~ComponentConfig} layoutConfig - The layout config
-     * @param {module:o3h.Component} layoutComponents - Component definitions to use in the layout
-     * @param {module:o3h~Transition} existingComponents - Existing components to reuse
-     * 
-     * @returns {Promise.<module:o3h~Layout>}
-     */
-    createLayout(layoutName, layoutConfig, layoutComponents, existingComponents = {}) {
+    initSingleton(o3h) {
+        this.o3h = o3h;
+        this.runtime = o3h.Instance;
+    }
+
+    // creates layouts, but is essentially thread-locked, only allowing one layout to be created at a time.
+    async createLayout(layoutName, layoutConfig, layoutComponents, existingComponents = {}) {
         if (this.layoutsByName.has(layoutName)) {
             return this.layoutsByName.get(layoutName);
         }
 
-        const layoutPromise = o3h.Instance.getLayoutManager().createLayout(layoutConfig, layoutComponents, existingComponents);
-        this.layoutsByName.set(layoutName, layoutPromise);
+        const layout = await this.runtime.createLayout(layoutConfig, layoutComponents, existingComponents);
+        this.layoutsByName.set(layoutName, layout);
 
-        return layoutPromise;
+        return layout;
     }
 
-    /**
-     * Creates an empty layout with an empty main component (to hide the previously shown layout).
-     */
     async createEmptyLayout() {
-        await this.createLayout(LAYOUTS.EMPTY_LAYOUT, "Full Screen", {});
+        await this.createLayout(LAYOUTS.HTML_ONLY, 'Full Screen', {});
     }
 
-    /**
-     * Gets a layout object that has already been created.
-     * 
-     * @param {string} layoutName - The name of the pre-created layout
-     * @returns {Promise.<module:o3h~Layout>}
-     */
-    async getLayout(layoutName) {
-        const layout = await this.layoutsByName.get(layoutName);
-        if (layout) {
-            return layout;
-        }
-        return null;
-    }
-
-    /**
-     * Shows a layout that has already been created and hides the current active layout.
-     * 
-     * @param {string} layoutName - The name of the pre-created layout
-     */
     async showLayout(layoutName) {
-        const layout = await this.layoutsByName.get(layoutName);
-        if (layout) {
-            await layout.show(true);
-            return layout;
-        }
-        return null;
+        await this.layoutsByName.get(layoutName).show(true);
     }
 
-    /**
-     * Hides a layout that has already been created.
-     * 
-     * @param {string} layoutName - The name of the pre-created layout
-     * @returns {Promise.<module:o3h~Layout>}
-     */
-    async hideLayout(layoutName) {
-        const layout = await this.layoutsByName.get(layoutName);
-        if (layout) {
-            layout.hide();
-            return layout;
-        }
-        return null;
+    /* THESE ARE MODULE-SPECIFIC, SO MAY NOT KEEP THIS IN THE TEMPLATE CODE, MIGHT MOVE TO RECIPE */
+    async createTopHalfCameraLayout() {
+        const camConfig = new this.o3h.CameraComponentConfig();
+        const layout = await this.createLayout(
+            LAYOUTS.TOP_HALF_CAMERA,
+            getEvenSplitLayout(this.o3h),
+            {'top': camConfig});
+
+        // since this is the first layout we create with a camera, save it so we can use in other layouts
+        this.cameraComponent = layout.getComponent('top');
     }
 
-    /**
-     * Destroys a layout object that has already been created.
-     * 
-     * @param {string} layoutName - The name of the pre-created layout
-     */
-    async destroyLayout(layoutName) {
-        const layout = await this.layoutsByName.get(layoutName);
-        if (layout) {
-            layout.destroy();
-            this.layoutsByName.delete(layoutName);
-        }
+    async createTopHalfCameraBottomHalfVideoLayout(videoUrl) {
+        const camConfig = new this.o3h.CameraComponentConfig();
+        const videoConfig = new this.o3h.VideoComponentConfig();
+        videoConfig.url = videoUrl;
+        const layout = await this.createLayout(
+            LAYOUTS.TOP_CAMERA_BOTTOM_VIDEO,
+            getEvenSplitLayout(this.o3h),
+            {'top': camConfig, 'bottom': videoConfig});
+
+        // since this is the first layout we create with a camera, save it so we can use in other layouts
+        this.cameraComponent = layout.getComponent('top');
+        this.creatorVideoComponent = layout.getComponent('bottom');
     }
-    
-    /**
-     * Creates a layout with one PIP camera element.
-     */
-     async createRecordingCameraLayout() {
-        const cameraConfig = new o3h.CameraComponentConfig();
+
+    async createCreatorLayout() {
+        const camConfig = new this.o3h.CameraComponentConfig();
+        const existing = {};
+        if (this.cameraComponent) {
+            existing['top'] = this.cameraComponent;
+        }
 
         const layout = await this.createLayout(
-            LAYOUTS.RECORDING_CAMERA,
-            getPIPCameraLayout(),
-            { "camera": cameraConfig }
-        );
-        
-        return layout;
+            LAYOUTS.CREATOR_CAMERA,
+            getCreatorCameraLayout(this.o3h),
+            {'top': camConfig},
+            existing
+            );
+
+        this.cameraComponent = layout.getComponent('top');
     }
 
-    /**
-     * Creates a layout with one fullscreen video element.
-     */
-    async createReviewVideoLayout() {
-        const videoConfig = new o3h.VideoComponentConfig();
-        videoConfig.loop = true;
-
+    async createCreatorAudienceLayout(videoUrl) {
+        const videoConfig = new this.o3h.VideoComponentConfig();
+        videoConfig.url = videoUrl;
+        const camConfig = new this.o3h.CameraComponentConfig();
         const layout = await this.createLayout(
-            LAYOUTS.REVIEW_VIDEO,
-            getFullScreenLayout(),
-            { "main": videoConfig }
-        );
-
-        return layout;
+            LAYOUTS.CREATOR_AUDIENCE_CAMERA,
+            getCreatorAudienceLayout(this.o3h),
+            {'topLeft': videoConfig, 'topRight': camConfig},
+            {'topLeft': this.creatorVideoComponent, 'topRight': this.cameraComponent});
+        this.creatorVideoComponent = layout.getComponent('topLeft');
+        await this.creatorVideoComponent.transition({ scale: { x: -1, y: 1 } });
+        this.cameraComponent = layout.getComponent('topRight');
     }
 
+    async createFullScreenVideoLayout() {
+        const videoConfig = new this.o3h.VideoComponentConfig();
+        const layout = await this.createLayout(
+            LAYOUTS.FULL_SCREEN_VIDEO,
+            getFullScreenLayout(this.o3h),
+            {'main': videoConfig});
+        this.reviewVideoComponent = layout.getComponent('main');
+    }
+
+    async createFullScreenCameraLayout() {
+        const cameraConfig = new this.o3h.CameraComponentConfig();
+        await this.createLayout(
+            LAYOUTS.FULL_SCREEN_CAMERA,
+            getFullScreenLayout(this.o3h),
+            {'main': cameraConfig},
+            {'main': this.cameraComponent});
+    }
 }
 
 const LayoutManagerInstance = new LayoutManager();
