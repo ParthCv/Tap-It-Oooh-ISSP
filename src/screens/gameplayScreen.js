@@ -49,6 +49,30 @@ export default class GameplayScreen extends ScreenBase {
 
         let endGamefunction = this.finishGame;
 
+        async function startCountDown() {
+            console.log("In startCountDown");
+            const countDown = document.getElementById("game-countdown");
+            countDown.innerHTML = "3";
+            console.log("countDown: " + countDown.innerHTML);
+            setTimeout(() => {
+                countDown.innerHTML = "2";
+                console.log("countDown: " + countDown.innerHTML);
+                setTimeout(() => {
+                    countDown.innerHTML = "1";
+                    console.log("countDown: " + countDown.innerHTML);
+                    setTimeout(() => {
+                        countDown.innerHTML = "GO!";
+                        console.log("countDown: " + countDown.innerHTML);
+                        setTimeout(() => {
+                            countDown.innerHTML = "";      
+                            button.addEventListener("click", timerFunc)
+                        }, 1000);
+                    }, 1000);
+                }, 1000);
+            }, 1000);
+        }
+        startCountDown();
+
         async function startTimer(ms) {
             let startTime = new Date().getTime();
             let timerId = setInterval(async function() {
@@ -68,9 +92,10 @@ export default class GameplayScreen extends ScreenBase {
             }, 1);
         }         
 
-        button.addEventListener("click", function() {
+        async function timerFunc() {
             SoundManagerInstance.playSound(SOUNDS.SFX_BUTTON_TAP);
-            if(!startedGame) { 
+            if(!startedGame) {
+                
                 startTimer(5000);
                 startedGame = true;
             } else if (!endGame) {
@@ -80,7 +105,9 @@ export default class GameplayScreen extends ScreenBase {
             if(endGame){
                 button.disabled = true;
             }
-        })
+        }
+
+        
     }
 
 
