@@ -43,8 +43,8 @@ export default class GameplayScreen extends ScreenBase {
                 // });
                 this.creatorCameraVideoAsset = this.assetManager.getInputAsset(consts.INPUT_OUTPUT_ASSETS.INPUT_CREATOR_CAMERA);
                 const creatorCameraURL = await this.creatorCameraVideoAsset.getVideoPath();
-                await LayoutManagerInstance.createAudienceLayout(creatorCameraURL);
-            
+                const layout = await LayoutManagerInstance.createAudienceLayout(creatorCameraURL);
+                
             }
         });
 
@@ -54,6 +54,9 @@ export default class GameplayScreen extends ScreenBase {
     async show() {
         await super.show();
         this.camera = LayoutManagerInstance.cameraComponent;
+        if(this.isAudienceMode) {
+            this.video =  LayoutManagerInstance.creatorVideoComponent;
+        }
     }
 
     async onShowing() {
@@ -61,6 +64,8 @@ export default class GameplayScreen extends ScreenBase {
 
         this.camera.startRecording();
         this.fullscreenRecorder.startRecording();
+
+        this.video.playVideo();
 
         let cameraInstance = this.camera;
         let fullscreenRecorderInstance = this.fullscreenRecorder;
