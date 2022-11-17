@@ -1,4 +1,6 @@
-import {getCreatorAudienceLayout, getCreatorCameraLayout, getEvenSplitLayout, getFullScreenLayout, LAYOUTS} from "./const";
+import {
+    //getCreatorAudienceLayout, 
+    getCreatorCameraLayout, getEvenSplitLayout, getFullScreenLayout, getAudienceLayout, LAYOUTS} from "./const";
 import {wait} from "./util";
 
 /*
@@ -94,19 +96,19 @@ class LayoutManager {
         this.cameraComponent = layout.getComponent('top');
     }
 
-    async createCreatorAudienceLayout(videoUrl) {
-        const videoConfig = new this.o3h.VideoComponentConfig();
-        videoConfig.url = videoUrl;
-        const camConfig = new this.o3h.CameraComponentConfig();
-        const layout = await this.createLayout(
-            LAYOUTS.CREATOR_AUDIENCE_CAMERA,
-            getCreatorAudienceLayout(this.o3h),
-            {'topLeft': videoConfig, 'topRight': camConfig},
-            {'topLeft': this.creatorVideoComponent, 'topRight': this.cameraComponent});
-        this.creatorVideoComponent = layout.getComponent('topLeft');
-        await this.creatorVideoComponent.transition({ scale: { x: -1, y: 1 } });
-        this.cameraComponent = layout.getComponent('topRight');
-    }
+    // async createCreatorAudienceLayout(videoUrl) {
+    //     const videoConfig = new this.o3h.VideoComponentConfig();
+    //     videoConfig.url = videoUrl;
+    //     const camConfig = new this.o3h.CameraComponentConfig();
+    //     const layout = await this.createLayout(
+    //         LAYOUTS.CREATOR_AUDIENCE_CAMERA,
+    //         getCreatorAudienceLayout(this.o3h),
+    //         {'topLeft': videoConfig, 'topRight': camConfig},
+    //         {'topLeft': this.creatorVideoComponent, 'topRight': this.cameraComponent});
+    //     this.creatorVideoComponent = layout.getComponent('topLeft');
+    //     await this.creatorVideoComponent.transition({ scale: { x: -1, y: 1 } });
+    //     this.cameraComponent = layout.getComponent('topRight');
+    // }
 
     async createFullScreenVideoLayout() {
         const videoConfig = new this.o3h.VideoComponentConfig();
@@ -115,6 +117,20 @@ class LayoutManager {
             getFullScreenLayout(this.o3h),
             {'main': videoConfig});
         this.reviewVideoComponent = layout.getComponent('main');
+    }
+
+    async createAudienceLayout(videoUrl) {
+        const videoConfig = new this.o3h.VideoComponentConfig();
+        videoConfig.url = videoUrl;
+        const camConfig = new this.o3h.CameraComponentConfig();
+        const layout = await this.createLayout(
+            LAYOUTS.AUDIENCE_LAYOUT,
+            getAudienceLayout(this.o3h),
+            {'main':camConfig,
+             'pip': videoConfig}
+        )
+        this.creatorVideoComponent = layout.getComponent('pip');
+        this.cameraComponent = layout.getComponent('main');
     }
 
     async createFullScreenCameraLayout() {
