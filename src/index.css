@@ -156,7 +156,16 @@ button {
     box-shadow: none;
   }
 
-
+#game-countdown {
+    font-size: 100px !important;
+    font-weight: normal;
+    font-family: 'Gotham-UltraItalic';
+    color: #ffffff;
+    position: absolute;
+    text-align: center;
+    top: 25%;
+    right: 45%;
+}
     
 #button:active {
     box-shadow: 0 0px 20px rgba(255,100,100, .5);
@@ -395,12 +404,39 @@ button {
     color: var(--green);
     text-shadow: var(--purple-shadow);
     font-size: 7vh;
-    background-image: url(./images/rainbowwave.png);
+    background-image: url(./images/vs_symbol.png);
     background-repeat: no-repeat;
     background-position: center;
+    background-size: 300px 200px;
     height: 100vh;
     display: flex;
     justify-content: center;
     flex-direction: column;
     text-align: center;
+}
+
+
+
+#reviewScreen #reviewScore {
+    margin-top: 75vh;
+    font-size: 6vh;
+    font-weight: bold;
+    color: var(--green);
+    text-shadow: var(--purple-shadow);
+    text-align: center;
+}
+
+#reviewScreen button {
+    width: 15vh;
+}
+
+#reviewScreen button#review_retry {
+    left: 2vh;
+    right: unset;
+    background: unset;
+}
+
+#reviewScreen button#review_done {
+    right: 2vh;
+    left: unset;
 }
