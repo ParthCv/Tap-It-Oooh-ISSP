@@ -31,6 +31,7 @@ module.exports.LAYOUTS = {
     CREATOR_AUDIENCE_CAMERA: 'creator_audience_camera',
     FULL_SCREEN_VIDEO: 'full_screen_video',
     FULL_SCREEN_CAMERA: 'full_screen_camera',
+    AUDIENCE_LAYOUT: 'audience_layout'
 }
 
 module.exports.COMPONENTS = {
@@ -82,31 +83,31 @@ module.exports.getEvenSplitLayout = (o3h) => {
     };
 }
 
-module.exports.getCreatorAudienceLayout = (o3h) => {
-    return {
-        childrenFlexDirection: o3h.Layout.Direction.Vertical,
-        children: [
-            {
-                flexRatio: 1,
-                childrenFlexDirection: o3h.Layout.Direction.Horizontal,
-                children: [
-                    {
-                        id: 'topLeft',
-                        flexRatio: 1
-                    },
-                    {
-                        id: 'topRight',
-                        flexRatio: 1
-                    }
-                ]
-            },
-            {
-                id: 'bottom',
-                flexRatio: 2,
-            }
-        ]
-    }
-}
+// module.exports.getCreatorAudienceLayout = (o3h) => {
+//     return {
+//         childrenFlexDirection: o3h.Layout.Direction.Vertical,
+//         children: [
+//             {
+//                 flexRatio: 1,
+//                 childrenFlexDirection: o3h.Layout.Direction.Horizontal,
+//                 children: [
+//                     {
+//                         id: 'topLeft',
+//                         flexRatio: 1
+//                     },
+//                     {
+//                         id: 'topRight',
+//                         flexRatio: 1
+//                     }
+//                 ]
+//             },
+//             {
+//                 id: 'bottom',
+//                 flexRatio: 2,
+//             }
+//         ]
+//     }
+// }
 
 module.exports.getFullScreenLayout = (o3h) => {
     return {
@@ -116,6 +117,31 @@ module.exports.getFullScreenLayout = (o3h) => {
                 id: 'main',
                 flexRatio: 1,
             }
+        ]
+    };
+}
+
+module.exports.getAudienceLayout = (o3h) => {
+    return {
+        childrenFlexDirection: o3h.Layout.Direction.Vertical,
+        children: [
+            {
+                id: 'main',
+                flexRatio: 1
+              },
+              {
+                id: 'pip',
+                anchor: o3h.Layout.Position.TopLeft,
+                pivot: o3h.Layout.Position.TopLeft,
+                offset: {
+                  x: 0.1,
+                  y: -0.1
+                },
+                size: {
+                  x: 0.25,
+                  y: 0.25
+                }
+              }
         ]
     };
 }

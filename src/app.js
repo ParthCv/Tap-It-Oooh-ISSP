@@ -151,9 +151,9 @@ export default class App {
     }
 
     //async leaveGameplay(fullScreenRecording, camRecording, replayData, score){
-    async leaveGameplay(score){
-        // this.fullScreenRecording = fullScreenRecording;
-        // this.camRecording = camRecording;
+    async leaveGameplay(fullScreenRecording, camRecording, score){
+        this.fullScreenRecording = fullScreenRecording;
+        this.camRecording = camRecording;
         // this.replayData = replayData;
 
         this.score = score;//TODO: decide if we should allow negative scores or not: Math.max(0, score);    // protect against negative scores, which are possible if player is terrible
@@ -168,8 +168,8 @@ export default class App {
         }
     }
     async goToReview() {
-        // const assetManager = this.runtime.getAssetManager();
-        // assetManager.addToOutput(INPUT_OUTPUT_ASSETS.OUTPUT_FULLSCREEN_RECORDING, this.fullScreenRecording);
+        const assetManager = this.runtime.getAssetManager();
+        assetManager.addToOutput(INPUT_OUTPUT_ASSETS.OUTPUT_FULLSCREEN_RECORDING, this.fullScreenRecording);
 
         // if (this.isCreatorMode) {
         //     assetManager.addToOutput(INPUT_OUTPUT_ASSETS.OUTPUT_REPLAY_DATA, this.replayData);

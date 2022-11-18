@@ -30,11 +30,9 @@ export default class AudiencePostgameLeaderboard extends ScreenBase {
         await super.show();
         const leaderboardContainer = document.querySelector('#postgameLeaderboard .leaderboard-container');
         await mainApp.leaderboard.showPostGame(leaderboardContainer);
-        this.settingsService.showSystemSettings();
     }
 
     async hide() {
         await super.hide();
-        this.settingsService.hideSystemSettings();
     }
 }
