@@ -33,6 +33,7 @@ export default class GameplayScreen extends ScreenBase {
         this.camera = LayoutManagerInstance.cameraComponent;
     }
 
+
     async onShowing() {
         console.log("game screen");
 
@@ -41,6 +42,13 @@ export default class GameplayScreen extends ScreenBase {
 
         let button = document.getElementById("game-button");
         let scoreElement = document.getElementById("score");
+
+        function moveButton(){
+            let x = Math.random() * 75;
+            let y = Math.random() * 75;
+            button.style.left = x + "%";
+            button.style.top = y + "%";
+        }
 
         // let score = 0;
         let score = 0;
@@ -71,10 +79,13 @@ export default class GameplayScreen extends ScreenBase {
         button.addEventListener("click", function() {
             SoundManagerInstance.playSound(SOUNDS.SFX_BUTTON_TAP);
             if(!startedGame) { 
-                startTimer(5000);
+                startTimer(10000);
                 startedGame = true;
             } else if (!endGame) {
                 scoreElement.innerHTML = "Score: " + ++score;
+                if (score > 15) {
+                moveButton();
+                }
             }
 
             if(endGame){
