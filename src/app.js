@@ -170,7 +170,7 @@ export default class App {
     async goToReview() {
         const assetManager = this.runtime.getAssetManager();
         assetManager.addToOutput(INPUT_OUTPUT_ASSETS.OUTPUT_FULLSCREEN_RECORDING, this.fullScreenRecording);
-
+        assetManager.addToOutput(INPUT_OUTPUT_ASSETS.OUTPUT_CAMERA, this.camRecording);
         // if (this.isCreatorMode) {
         //     assetManager.addToOutput(INPUT_OUTPUT_ASSETS.OUTPUT_REPLAY_DATA, this.replayData);
         // }

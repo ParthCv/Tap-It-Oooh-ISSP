@@ -22,12 +22,12 @@ export default class VsScreen extends ScreenBase {
 
     async show() {
         await super.show();
-
-        LayoutManagerInstance.creatorVideoComponent.setVolume(0);
-        LayoutManagerInstance.creatorVideoComponent.playVideo();
     }
 
     async onShowing() {
+        console.log(LayoutManagerInstance.creatorVideoComponent)
+        LayoutManagerInstance.creatorVideoComponent.setVolume(0);
+        LayoutManagerInstance.creatorVideoComponent.playVideo();
         await sleep(VS_SCREEN_SHOW_TIME);
         this.mainApp.goToGameplay();
     }
