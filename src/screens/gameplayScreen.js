@@ -68,7 +68,9 @@ export default class GameplayScreen extends ScreenBase {
         this.fullscreenRecorder.startRecording();
 
         if(this.isAudienceMode) {
-            this.video.playVideo();
+            this.video.stop();
+            this.video.seekVideo(0);
+            this.video.start();
         }
         
         let cameraInstance = this.camera;
