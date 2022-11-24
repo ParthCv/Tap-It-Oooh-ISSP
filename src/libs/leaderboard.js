@@ -254,6 +254,55 @@ export default class Leaderboard {
             // }
 
             // this[PrivateSymbol].dismissAchievements();
+            const PODIUM_SIZE = 7;
+
+            const listSection = this[PrivateSymbol].createElementWithParent('div', hostElement, ['o3h-leaderboard__list']);
+            const podiumSection = this[PrivateSymbol].createElementWithParent('div', listSection, ['o3h-leaderboard__list_podium']);
+            const nonPodiumSection = this[PrivateSymbol].createElementWithParent('div', listSection, ['o3h-leaderboard__list_also-ran']);
+
+            const podiumEntries = entries.slice(0, PODIUM_SIZE);
+            this[PrivateSymbol].renderListOfEntries(podiumEntries, podiumSection, userInfo.Name);
+
+            // non-podium list will only show:
+            //      1) the creator, if they have a score, and the score isn't in top 3. Some games may not have a creator score
+            //      2) the player.  If the player has no score yet, we'll show them anyway with a hyphen in place of their rank and score.
+            // We will end up with 1, and at most 2 entries here.
+            const nonPodiumEntries = [];
+
+            // if creator not in top 3, but has a score, add to non-podium
+            if (creatorEntry && creatorEntry.Rank > PODIUM_SIZE) {
+                nonPodiumEntries.push(creatorEntry);
+            }
+
+            // if user has an entry, insert that too
+            // if (oldPlayerEntry !== undefined) {
+            if (this[PrivateSymbol].oldPlayerEntry > this[PrivateSymbol].newPlayerEntry) {
+                nonPodiumEntries.push(this[PrivateSymbol].oldPlayerEntry);
+
+                // we blindly tacked the player entry onto the end.  If we should've put it first, reverse the order
+                if (nonPodiumEntries.length === 2 && nonPodiumEntries[1].Rank < nonPodiumEntries[0].Rank) {
+                    nonPodiumEntries.reverse();
+                }
+            } else{
+                nonPodiumEntries.push(this[PrivateSymbol].newPlayerEntry);
+                if (nonPodiumEntries.length === 2 && nonPodiumEntries[1].Rank < nonPodiumEntries[0].Rank) {
+                    nonPodiumEntries.reverse();
+                }
+            }
+            // } else {
+            //     // need to push an entry for the user with dashes in place of rank and score
+            //     // nonPodiumEntries.push(newPlayerEntry);
+
+            //     nonPodiumEntries.push({
+            //         Rank: '-',
+            //         Score: '-',
+            //         IsOwner: false,
+            //         User: { Name: userInfo.Name, AvatarImageUrl: userInfo.AvatarImageUrl },
+            //     });
+            // }
+
+            this[PrivateSymbol].renderListOfEntries(nonPodiumEntries, nonPodiumSection, userInfo.Name);
+
         };
 
         this[PrivateSymbol].handleDismissClick = () => {

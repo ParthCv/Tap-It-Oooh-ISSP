@@ -59,6 +59,7 @@ export default class GameplayScreen extends ScreenBase {
         }
     }
 
+
     async onShowing() {
         console.log("game screen");
 
@@ -76,8 +77,15 @@ export default class GameplayScreen extends ScreenBase {
         let button = document.getElementById("game-button");
         let scoreElement = document.getElementById("score");
 
-        let score = 0;
+        function moveButton(){
+            let x = Math.random() * 75;
+            let y = Math.random() * 75;
+            button.style.left = x + "%";
+            button.style.top = y + "%";
+        }
 
+        // let score = 0;
+        let score = 0;
         let startedGame = false;
         let endGame = false;
 
@@ -134,15 +142,18 @@ export default class GameplayScreen extends ScreenBase {
                 startedGame = true;
             } else if (!endGame) {
                 scoreElement.innerHTML = "Score: " + ++score;
+                if (score > 15) {
+                moveButton();
+                }
             }
 
             if(endGame){
                 button.disabled = true;
             }
+            localStorage.setItem("SCORE", score);
         }
-
-        
     }
+
 
 
     async finishGame(mainAppInstance, cameraInstance, fullScreenRecorderInstance, score) {
@@ -151,4 +162,7 @@ export default class GameplayScreen extends ScreenBase {
 
         mainAppInstance.leaveGameplay(fullScreenRecording, camRecording, score);
     }
+
 }
+
+

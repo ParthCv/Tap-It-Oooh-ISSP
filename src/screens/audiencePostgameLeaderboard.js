@@ -17,10 +17,16 @@ export default class AudiencePostgameLeaderboard extends ScreenBase {
         });
 
         this.hostElement = document.querySelector('#postgameLeaderboard');
-        this.nextButton = document.querySelector('#postgameLeaderboard button');
+        // this.nextButton = document.querySelector('#postgameLeaderboard button');
+        this.nextButton = document.getElementById('nextButton');
+        this.retryButton = document.getElementById('retryButton');
         this.nextButton.onclick = () => {
             SoundManagerInstance.playSound(SOUNDS.SFX_BUTTON_TAP);
             this.mainApp.endModule();
+        }
+        this.retryButton.onclick = () => {
+            SoundManagerInstance.playSound(SOUNDS.SFX_BUTTON_TAP);
+            this.mainApp.goToGameplay();
         }
 
         this.settingsService = this.runtime.getSystemSettingsService();
@@ -29,7 +35,9 @@ export default class AudiencePostgameLeaderboard extends ScreenBase {
     async show() {
         await super.show();
         const leaderboardContainer = document.querySelector('#postgameLeaderboard .leaderboard-container');
-        await mainApp.leaderboard.showPostGame(leaderboardContainer);
+        let score = localStorage.getItem('SCORE')
+        await mainApp.leaderboard.showPostGame(leaderboardContainer, score);
+        this.settingsService.showSystemSettings();
     }
 
     async hide() {
