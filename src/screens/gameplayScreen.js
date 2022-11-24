@@ -96,7 +96,7 @@ export default class GameplayScreen extends ScreenBase {
         let startedGame = false;
         let endGame = false;
 
-        let endGamefunction = this.finishGame;
+        let endGamefunction = finishGame;
 
         async function startCountDown() {
             SoundManagerInstance.playSound(SOUNDS.BG_MUSIC);
@@ -145,7 +145,7 @@ export default class GameplayScreen extends ScreenBase {
         async function timerFunc() {
             SoundManagerInstance.playSound(SOUNDS.SFX_BUTTON_TAP);
             if(!startedGame) {                
-                startTimer(5000000);
+                startTimer(5000);
                 startedGame = true;
             } else if (!endGame) {
                 scoreElement.innerHTML = "Score: " + ++score;
@@ -156,8 +156,8 @@ export default class GameplayScreen extends ScreenBase {
                     shrinkButton(scale);
                     scale -= 0.075;
                 }
-            }
-            if(endGame){
+            } else if(endGame){
+                console.log("endGame");
                 button.disabled = true;
             }
             localStorage.setItem("SCORE", score);
