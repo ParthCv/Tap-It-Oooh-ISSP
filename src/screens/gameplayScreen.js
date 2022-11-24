@@ -60,6 +60,7 @@ export default class GameplayScreen extends ScreenBase {
     }
 
     async onShowing() {
+        SoundManagerInstance.stopSound(SOUNDS.BG_MUSIC);
         console.log("game screen");
 
         this.camera.startRecording();
@@ -78,12 +79,15 @@ export default class GameplayScreen extends ScreenBase {
 
         let score = 0;
 
+        let scale = 1;
+
         let startedGame = false;
         let endGame = false;
 
         let endGamefunction = this.finishGame;
 
         async function startCountDown() {
+            SoundManagerInstance.playSound(SOUNDS.BG_MUSIC);
             console.log("In startCountDown");
             const countDown = document.getElementById("game-countdown");
             countDown.innerHTML = "3";
@@ -130,10 +134,46 @@ export default class GameplayScreen extends ScreenBase {
             SoundManagerInstance.playSound(SOUNDS.SFX_BUTTON_TAP);
             if(!startedGame) {
                 
-                startTimer(5000);
+                startTimer(5000000);
                 startedGame = true;
             } else if (!endGame) {
                 scoreElement.innerHTML = "Score: " + ++score;
+                if ((score >= 10)) {
+                    button.addEventListener("click",
+                    function() {
+                        button.style.transform = "scale( " + (scale - 0.1) + " )";
+                    });
+                }
+                if ((score >= 12)) {
+                    button.addEventListener("click",
+                    function() {
+                        button.style.transform = "scale( " + (scale - 0.2) + " )";
+                    });
+                }
+                if ((score >= 14)) {
+                    button.addEventListener("click",
+                    function() {
+                        button.style.transform = "scale( " + (scale - 0.3) + " )";
+                    });
+                }
+                if ((score >= 16)) {
+                    button.addEventListener("click",
+                    function() {
+                        button.style.transform = "scale( " + (scale - 0.4) + " )";
+                    });
+                }
+                if ((score >= 18)) {
+                    button.addEventListener("click",
+                    function() {
+                        button.style.transform = "scale( " + (scale - 0.5) + " )";
+                    });
+                }
+                if ((score >= 20)) { 
+                    button.addEventListener("click",
+                    function() {
+                        button.style.transform = "scale( " + (scale - 0.6) + " )";
+                    });
+                }
             }
 
             if(endGame){
@@ -143,6 +183,9 @@ export default class GameplayScreen extends ScreenBase {
 
         
     }
+
+
+
 
 
     async finishGame(mainAppInstance, cameraInstance, fullScreenRecorderInstance, score) {
