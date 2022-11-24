@@ -150,6 +150,7 @@ export default class GameplayScreen extends ScreenBase {
             if(endGame){
                 button.disabled = true;
             }
+            localStorage.setItem("SCORE", score);
         }
     }
 
