@@ -42,6 +42,5 @@ export default class AudiencePostgameLeaderboard extends ScreenBase {
 
     async hide() {
         await super.hide();
-        this.settingsService.hideSystemSettings();
     }
 }

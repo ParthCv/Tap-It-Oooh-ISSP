@@ -11,7 +11,7 @@ import LayoutManagerInstance from "./layoutManager";
 import ScreenManagerInstance from "./screenManager";
 import Leaderboard from "./libs/leaderboard";
 import SoundManagerInstance from './soundManager';
-// import VsScreen from "./screens/vsScreen";
+import VsScreen from "./screens/vsScreen";
 import * as util from "./util";
 
 export default class App {
@@ -44,7 +44,7 @@ export default class App {
         // these 2 screens only happen in audience mode
         if (this.isAudienceMode){
             // this.pregameLeaderboardScreen = new AudiencePregameLeaderboard(o3h, this);
-            // this.vsScreen = new VsScreen(o3h, this);
+            this.vsScreen = new VsScreen(o3h, this);
             this.scoreCompareScreen = new ScoreComparisonScreen(o3h, this);
         }
 
@@ -63,9 +63,9 @@ export default class App {
             allScreens.push(this.pregameLeaderboardScreen);
         // }
         allScreens.push(this.tutorialScreen);
-        // if (this.isAudienceMode) {
-        //     allScreens.push(this.vsScreen);
-        // }
+        if (this.isAudienceMode) {
+            allScreens.push(this.vsScreen);
+        }
         allScreens.push(this.gameplayScreen);
         if (this.isAudienceMode) {
             // allScreens.push(this.scoreCompareScreen);
@@ -133,13 +133,13 @@ export default class App {
         // dataService.setSettingsDataAsync(settings);
         // console.log('New settings data', settings);
 
-        // if (this.isAudienceMode) {
-        //     await this.goToVs();
-        // }
-        // else {
-        //     await this.goToGameplay();
-        // }
-        await this.goToGameplay();
+        if (this.isAudienceMode) {
+            await this.goToVs();
+        }
+        else {
+            await this.goToGameplay();
+        }
+        //await this.goToGameplay();
     }
 
     async goToVs() {
@@ -151,9 +151,9 @@ export default class App {
     }
 
     //async leaveGameplay(fullScreenRecording, camRecording, replayData, score){
-    async leaveGameplay(score){
-        // this.fullScreenRecording = fullScreenRecording;
-        // this.camRecording = camRecording;
+    async leaveGameplay(fullScreenRecording, camRecording, score){
+        this.fullScreenRecording = fullScreenRecording;
+        this.camRecording = camRecording;
         // this.replayData = replayData;
 
         this.score = score;//TODO: decide if we should allow negative scores or not: Math.max(0, score);    // protect against negative scores, which are possible if player is terrible
@@ -168,8 +168,8 @@ export default class App {
         }
     }
     async goToReview() {
-        // const assetManager = this.runtime.getAssetManager();
-        // assetManager.addToOutput(INPUT_OUTPUT_ASSETS.OUTPUT_FULLSCREEN_RECORDING, this.fullScreenRecording);
+        const assetManager = this.runtime.getAssetManager();
+        assetManager.addToOutput(INPUT_OUTPUT_ASSETS.OUTPUT_FULLSCREEN_RECORDING, this.fullScreenRecording);
 
         // if (this.isCreatorMode) {
         //     assetManager.addToOutput(INPUT_OUTPUT_ASSETS.OUTPUT_REPLAY_DATA, this.replayData);
