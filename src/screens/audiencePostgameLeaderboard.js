@@ -25,8 +25,8 @@ export default class AudiencePostgameLeaderboard extends ScreenBase {
             this.mainApp.endModule();
         }
         this.retryButton.onclick = () => {
-            SoundManagerInstance.playSound(SOUNDS.SFX_BUTTON_TAP);
-            this.mainApp.goToGameplay();
+            SoundManagerInstance.playSound(SOUNDS.SFX_BUTTON_TAP);    
+            this.mainApp.leaveTutorialScreen();
         }
 
         this.settingsService = this.runtime.getSystemSettingsService();

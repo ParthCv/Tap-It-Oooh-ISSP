@@ -76,10 +76,14 @@ export default class GameplayScreen extends ScreenBase {
 
         let button = document.getElementById("game-button");
         let scoreElement = document.getElementById("score");
+        button.style.left = '0%';
+        button.style.top = '50%';
 
         function moveButton(){
-            let x = Math.random() * 75;
-            let y = Math.random() * 75;
+            let x = (Math.random() * 55);
+            let y = (Math.random() * 55);
+
+
             button.style.left = x + "%";
             button.style.top = y + "%";
         }
@@ -88,6 +92,7 @@ export default class GameplayScreen extends ScreenBase {
         let score = 0;
         let startedGame = false;
         let endGame = false;
+        let redostyle = false;
 
         let endGamefunction = this.finishGame;
 
@@ -124,6 +129,7 @@ export default class GameplayScreen extends ScreenBase {
                     document.getElementById("timer").innerHTML = "Timer: " + Math.floor(difference/1000);
                 } else {
                     document.getElementById("timer").innerHTML = "Timer: 0";
+                
                     endGame = true;
                     clearInterval(timerId);
                     // this.mainApp.endModule(score);
@@ -143,13 +149,10 @@ export default class GameplayScreen extends ScreenBase {
             } else if (!endGame) {
                 scoreElement.innerHTML = "Score: " + ++score;
                 if (score > 15) {
-                moveButton();
+                    moveButton();
                 }
-            }
-
-            if(endGame){
-                button.disabled = true;
-            }
+            
+            } 
             localStorage.setItem("SCORE", score);
         }
     }
