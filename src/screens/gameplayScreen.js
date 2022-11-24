@@ -61,6 +61,7 @@ export default class GameplayScreen extends ScreenBase {
 
 
     async onShowing() {
+        SoundManagerInstance.stopSound(SOUNDS.BG_MUSIC);
         console.log("game screen");
 
         this.camera.startRecording();
@@ -78,20 +79,27 @@ export default class GameplayScreen extends ScreenBase {
         let scoreElement = document.getElementById("score");
 
         function moveButton(){
-            let x = Math.random() * 75;
-            let y = Math.random() * 75;
+            let x = Math.random() * 60;
+            let y = Math.random() * 60;
             button.style.left = x + "%";
             button.style.top = y + "%";
         }
 
+        function shrinkButton(scale) {
+            button.style.transform = "scale( " + (scale) + " )";
+        }
+
         // let score = 0;
         let score = 0;
+        let scale = 1;
+
         let startedGame = false;
         let endGame = false;
 
         let endGamefunction = this.finishGame;
 
         async function startCountDown() {
+            SoundManagerInstance.playSound(SOUNDS.BG_MUSIC);
             console.log("In startCountDown");
             const countDown = document.getElementById("game-countdown");
             countDown.innerHTML = "3";
@@ -136,33 +144,30 @@ export default class GameplayScreen extends ScreenBase {
 
         async function timerFunc() {
             SoundManagerInstance.playSound(SOUNDS.SFX_BUTTON_TAP);
-            if(!startedGame) {
-                
-                startTimer(5000);
+            if(!startedGame) {                
+                startTimer(5000000);
                 startedGame = true;
             } else if (!endGame) {
                 scoreElement.innerHTML = "Score: " + ++score;
-                if (score > 15) {
-                moveButton();
+                if (score > 20) 
+                    moveButton();
+                else if (score < 10) {
+                    console.log("shrinking");
+                    shrinkButton(scale);
+                    scale -= 0.075;
                 }
             }
-
             if(endGame){
                 button.disabled = true;
             }
             localStorage.setItem("SCORE", score);
         }
+
+        async function finishGame(mainAppInstance, cameraInstance, fullScreenRecorderInstance, score) {
+            const camRecording = await cameraInstance.stopRecording();
+            const fullScreenRecording = await fullScreenRecorderInstance.stopRecording();
+    
+            mainAppInstance.leaveGameplay(fullScreenRecording, camRecording, score);
+        }
     }
-
-
-
-    async finishGame(mainAppInstance, cameraInstance, fullScreenRecorderInstance, score) {
-        const camRecording = await cameraInstance.stopRecording();
-        const fullScreenRecording = await fullScreenRecorderInstance.stopRecording();
-
-        mainAppInstance.leaveGameplay(fullScreenRecording, camRecording, score);
-    }
-
 }
-
-
