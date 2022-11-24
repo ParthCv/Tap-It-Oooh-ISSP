@@ -183,7 +183,7 @@ button {
 
 #tutorialScreen p {
     color:white;
-    font-size: 3vh;
+    font-size: 5vh;
     color: var(--green);
     text-shadow: var(--purple-shadow);
     position: absolute;
@@ -199,10 +199,32 @@ button {
     transition: all 1s;
 }
 
+#tutorial-content {
+    color:white;
+    font-size: 3vh;
+    color: aliceblue;
+    text-shadow: var(--purple-shadow);
+    position: absolute;
+    text-align: center;
+    top: 30vh;
+    width: 100%;
+    /* transform: scale(.7);
+    transition: all 1s; */
+}
+
+#tutorial-content div {
+    margin-bottom: 2.5vh;
+}
+
+#tutorialScreen div.show {
+    transform: scale(1.4);
+    transition: all 1s;
+}
+
 #tutorialScreen button {
     font-weight: bold;
     font-size: 3vh;
-    color: pink;
+    color: aliceblue;
 
     position: absolute;
     margin-left: auto;
