@@ -1,4 +1,5 @@
 import LayoutManagerInstance from "./layoutManager";
+import * as util from "./util";
 
 /**
  * Handles showing, hiding, and waiting for screens to be ready to change.
@@ -64,7 +65,10 @@ class ScreenManager {
      * Hides the loading screen
      */
     hideLoadingCover() {
+        util.sleep(600).then(() => {
+
         this.loadingCover.classList.add("hidden");
+        });
     }
 }
 

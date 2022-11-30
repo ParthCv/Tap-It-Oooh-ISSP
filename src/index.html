@@ -5,10 +5,22 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="viewport-fit=cover"/>   <!-- Needed when using notch env variables -->
     <title>Tap It</title>
+    <link rel="preload" href="./images/starrybg.png" as="image">
 </head>
 <body>
     <div id="loadingCover" class="hidden">
-
+        <p id="loadingText">Loading</p>
+            <div></div>
+            <div></div>
+            <div></div>
+            <div></div>
+        <!-- <div class="loadingSpinner">
+            <p id="loadingText">Loading</p>
+            <div></div>
+            <div></div>
+            <div></div>
+            <div></div>
+        </div> -->
     </div>
     <div id="screens">
         <div id="splashScreen" class="screen hidden">
@@ -21,6 +33,12 @@
         </div>
         <div id="tutorialScreen" class="screen hidden">
             <p>Tutorial</p>
+            <div id="tutorial-content">
+                <div class="tutorial-text">Tap the button to earn points.</div>
+                <div class="tutorial-text">Try to get the most points in 60 seconds.</div>
+                <div class="tutorial-text">During the game the button will move randomly on the screen.</div>
+            </div>
+            
             <button>Next</button>
         </div>
         <div id="vsScreen" class="screen hidden">
